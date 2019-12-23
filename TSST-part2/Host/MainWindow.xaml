@@ -1,0 +1,17 @@
+﻿<Window x:Class="Host.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Host"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <ComboBox x:Name="comboBox1" HorizontalAlignment="Left" Margin="28,35,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comboBox1_SelectionChanged"/>
+        <Button x:Name="SendMessage" Content="Send Message" HorizontalAlignment="Left" Margin="347,21,0,0" VerticalAlignment="Top" Height="87" Width="165" Click="SendMessage_Click"/>
+        <Button x:Name="StopSend" Content="Stop sending" HorizontalAlignment="Left" Margin="605,21,0,0" VerticalAlignment="Top" Height="87" Width="156"/>
+        <ListBox x:Name="ListBox12" Margin="58,150,164,53"/>
+        <ComboBox x:Name="Capacity" HorizontalAlignment="Left" Margin="28,92,0,0" VerticalAlignment="Top" Width="120"/>
+
+    </Grid>
+</Window>
