@@ -11,6 +11,7 @@ namespace Host
     {
         public string Name { get; set; }
         public IPAddress ip { get; set; }
+        public int modulation { get; set; }
          public RestOfHosts(string path)
         {
             var data = path.Split(' ');

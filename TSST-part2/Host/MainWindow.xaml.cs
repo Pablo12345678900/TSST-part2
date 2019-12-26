@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Net.Sockets;
 using System.Net;
 using System.Globalization;
+using Tools;
+using System.Threading;
 
 namespace Host
 {
@@ -117,14 +119,25 @@ namespace Host
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
             byte[] buffer = new byte[8];
-            client.socketToManager.Send(Encoding.ASCII.GetBytes(client.clientIP.ToString() + " " + destination.ip.ToString() + " 10"));
+            client.socketToManager.Send(Encoding.ASCII.GetBytes(client.clientIP.ToString() + " " + destination.ip.ToString() + " 10")); //callRequest(adres A, adres B, capacity)
             client.socketToManager.Receive(buffer);
             
             if(buffer[0].ToString()=="A" && buffer[1].ToString()=="C" && buffer[2].ToString()=="K")
             {
-                client.usedModulation = BitConverter.ToInt32(buffer, 4); // management returns modulation based on the length of calculated path
+                destination.modulation = BitConverter.ToInt32(buffer, 4); // management returns modulation based on the length of calculated path
+
                 ListBox12.Items.Add("I've got path to " + destination.Name + ". You can start sending messages to this destination.");
                 comboBox1.Items.Add(destination);
+            }
+            WaitForData();
+        }
+        public void WaitForData()
+        {
+            while (true)
+            {
+                byte[] buffer = new byte[256];
+                client.socketToCloud.Receive(buffer);
+                DataStream dataStream = DataStream.toData(buffer);
             }
         }
 
@@ -138,8 +151,49 @@ namespace Host
         {
             SendMessage.IsEnabled = false;
             StopSend.IsEnabled = true;
+            flag = true;
+            Task.Run(async () =>
+            {
+                while (flag)
+                {
+                    var flag1 = flag;
+                    sendStream();
+                    await Task.Delay(3000);
+                    if (flag1 != flag)
+                    {
+                        SendMessage.IsEnabled = true;
+                        StopSend.IsEnabled = false;
+                        break;
+                    }
 
+                }
+            });
+            
+            
 
+        }
+
+        public void sendStream()
+        {
+           
+                DataStream dataStream = new DataStream();
+                dataStream.sourceHost = client.clientIP;
+                
+                dataStream.currentNode = client.clientIP;
+                dataStream.currentPort = client.portOut;
+            Dispatcher.Invoke(() =>
+                {
+                    dataStream.payload = textBox1.Text;
+                    dataStream.modulation = destinationClient.modulation;
+                    dataStream.destinationHost = destinationClient.ip;
+                });
+            client.socketToCloud.Send(dataStream.toBytes());
+            
+        }
+
+        private void StopSend_Click(object sender, RoutedEventArgs e)
+        {
+            flag = false;
         }
     }
 }

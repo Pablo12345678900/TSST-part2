@@ -15,6 +15,7 @@ namespace Tools
         public uint firstFrequencySlot { get; set; } // these slots will be given by host ( if requested path will be free)
         public uint lastFrequencySlot { get; set; }
 
+        public int modulation { get; set; }
         public uint streamLength { get; set; }
         public DataStream()
         {
