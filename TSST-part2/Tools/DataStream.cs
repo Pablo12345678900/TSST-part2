@@ -17,6 +17,9 @@ namespace Tools
 
         public int modulation { get; set; }
         public uint streamLength { get; set; }
+
+        /*po analizie stwierdziłem, że nie są potrzebne informacje o destination host  w strumieniu skoro w tablicach jest info tylko o portach wej/wyj i slotach  forwardujemy na podstawie
+         * szczelin*/
         public DataStream()
         {
 
@@ -36,7 +39,7 @@ namespace Tools
             bytes.AddRange(Encoding.ASCII.GetBytes(payload ?? ""));
             return bytes.ToArray();
         }
-        public DataStream toData(byte[] bytes)
+        public static DataStream toData(byte[] bytes)
         {
             DataStream dataStream = new DataStream();
             dataStream.sourceHost = new IPAddress(new byte[] { bytes[0], bytes[1], bytes[2], bytes[3] });

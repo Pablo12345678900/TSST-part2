@@ -12,7 +12,9 @@ namespace Host
         public string Name { get; set; }
         public IPAddress ip { get; set; }
         public int modulation { get; set; }
-         public RestOfHosts(string path)
+        public uint firstFrequencySlot { get; set; } // these slots will be given by host ( if requested path will be free)
+        public uint lastFrequencySlot { get; set; }
+        public RestOfHosts(string path)
         {
             var data = path.Split(' ');
             Name = data[0];

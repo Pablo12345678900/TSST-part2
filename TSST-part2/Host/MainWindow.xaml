@@ -9,9 +9,10 @@
     <Grid>
         <ComboBox x:Name="comboBox1" HorizontalAlignment="Left" Margin="28,35,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="comboBox1_SelectionChanged"/>
         <Button x:Name="SendMessage" Content="Send Message" HorizontalAlignment="Left" Margin="347,21,0,0" VerticalAlignment="Top" Height="87" Width="165" Click="SendMessage_Click"/>
-        <Button x:Name="StopSend" Content="Stop sending" HorizontalAlignment="Left" Margin="605,21,0,0" VerticalAlignment="Top" Height="87" Width="156"/>
+        <Button x:Name="StopSend" Content="Stop sending" HorizontalAlignment="Left" Margin="605,21,0,0" VerticalAlignment="Top" Height="87" Width="156" Click="StopSend_Click"/>
         <ListBox x:Name="ListBox12" Margin="58,150,164,53"/>
         <ComboBox x:Name="Capacity" HorizontalAlignment="Left" Margin="28,92,0,0" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="textBox1" HorizontalAlignment="Left" Margin="187,39,0,0" Text="TextBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
 
     </Grid>
 </Window>

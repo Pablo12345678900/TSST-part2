@@ -1,0 +1,41 @@
+﻿{
+  "version": "1.0.0",
+  "restore": {
+    "projectUniqueName": "C:\\Users\\pawer\\Desktop\\C#-Learning\\TSST-part1\\ManagerApp\\ManagerApp.csproj",
+    "projectName": "ManagerApp",
+    "projectPath": "C:\\Users\\pawer\\Desktop\\C#-Learning\\TSST-part1\\ManagerApp\\ManagerApp.csproj",
+    "outputPath": "C:\\Users\\pawer\\Desktop\\C#-Learning\\TSST-part1\\ManagerApp\\obj\\",
+    "projectStyle": "PackageReference",
+    "originalTargetFrameworks": [
+      "netcoreapp3.0"
+    ],
+    "sources": {
+      "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+      "https://api.nuget.org/v3/index.json": {}
+    },
+    "frameworks": {
+      "netcoreapp3.0": {
+        "projectReferences": {}
+      }
+    },
+    "warningProperties": {
+      "warnAsError": [
+        "NU1605"
+      ]
+    }
+  },
+  "frameworks": {
+    "netcoreapp3.0": {
+      "imports": [
+        "net461",
+        "net462",
+        "net47",
+        "net471",
+        "net472",
+        "net48"
+      ],
+      "assetTargetFallback": true,
+      "warn": true
+    }
+  }
+}

@@ -83,6 +83,15 @@ namespace Host
                 Dispatcher.Invoke(() => ListBox12.Items.Add(client.clientName + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with cable cloud"));
                 client.socketToCloud.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString()));
+                byte[] buffer = new byte[256];
+                client.socketToCloud.Receive(buffer);// about used ports
+                client.usedPorts = givePorts(buffer);
+                for (int i = 0; i < client.usedPorts.ToArray().Length; i++)
+                {
+                    ushort port = client.usedPorts[i];
+                    LinkResourceManager link = new LinkResourceManager(port);
+                    client.linkResources.Add(link); // adding LRMs
+                }
 
             }
             catch (SocketException e)
@@ -92,6 +101,16 @@ namespace Host
             }
 
             Task.Run(ConnectWithManagement);
+        }
+        public List<ushort> givePorts(byte[] bytes)
+        {
+            List<ushort> list = new List<ushort>();
+            for (int i = 0; i < bytes.Length; i = i + 2)
+            {
+                ushort port = (ushort)((bytes[i + 1] << 8) + bytes[i]);
+                list.Add(port);
+             }
+            return list;
         }
         public void ConnectWithManagement()
         {
@@ -113,19 +132,21 @@ namespace Host
             }
             foreach(var neighbour in client.Neighbours)
             {
-                GiveConnectionWithHost(neighbour);
+                GiveConnectionWithHost(neighbour); // CallRequest
             }
         }
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
-            byte[] buffer = new byte[8];
-            client.socketToManager.Send(Encoding.ASCII.GetBytes(client.clientIP.ToString() + " " + destination.ip.ToString() + " 10")); //callRequest(adres A, adres B, capacity)
+            byte[] buffer = new byte[16];
+            client.socketToManager.Send(Encoding.ASCII.GetBytes(client.clientIP.ToString() + " " + destination.ip.ToString() + " 10")); //callRequest(adres A, adres B, speed)
+            //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej
             client.socketToManager.Receive(buffer);
             
             if(buffer[0].ToString()=="A" && buffer[1].ToString()=="C" && buffer[2].ToString()=="K")
             {
                 destination.modulation = BitConverter.ToInt32(buffer, 4); // management returns modulation based on the length of calculated path
-
+                destination.firstFrequencySlot = BitConverter.ToUInt32(buffer, 8);
+                destination.lastFrequencySlot = BitConverter.ToUInt32(buffer, 12);
                 ListBox12.Items.Add("I've got path to " + destination.Name + ". You can start sending messages to this destination.");
                 comboBox1.Items.Add(destination);
             }
@@ -138,6 +159,7 @@ namespace Host
                 byte[] buffer = new byte[256];
                 client.socketToCloud.Receive(buffer);
                 DataStream dataStream = DataStream.toData(buffer);
+                //log o tym ze dostałem strumień
             }
         }
 
@@ -185,6 +207,8 @@ namespace Host
                 {
                     dataStream.payload = textBox1.Text;
                     dataStream.modulation = destinationClient.modulation;
+                    dataStream.firstFrequencySlot = destinationClient.firstFrequencySlot;
+                    dataStream.lastFrequencySlot = destinationClient.lastFrequencySlot;
                     dataStream.destinationHost = destinationClient.ip;
                 });
             client.socketToCloud.Send(dataStream.toBytes());

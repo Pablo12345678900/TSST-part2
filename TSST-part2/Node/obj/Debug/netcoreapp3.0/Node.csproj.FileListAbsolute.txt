@@ -1,0 +1,70 @@
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Node
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Node.deps.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.dev.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Node.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/obj/Debug/netcoreapp3.0/Node.csprojAssemblyReference.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfoInputs.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfo.cs
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/obj/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/obj/Debug/netcoreapp3.0/Node.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Tools.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/bin/Debug/netcoreapp3.0/Tools.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST_1/Node/obj/Debug/netcoreapp3.0/Node.csproj.CopyComplete
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.deps.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.dev.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Tools.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/bin/Debug/netcoreapp3.0/Tools.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.csprojAssemblyReference.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfoInputs.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfo.cs
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.csproj.CopyComplete
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.deps.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.dev.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Node.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Tools.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/bin/Debug/netcoreapp3.0/Tools.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.csprojAssemblyReference.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfoInputs.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfo.cs
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.csproj.CopyComplete
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/old/TSST-part1/Node/obj/Debug/netcoreapp3.0/Node.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Node
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Node.deps.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Node.runtimeconfig.dev.json
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Node.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Tools.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/bin/Debug/netcoreapp3.0/Tools.pdb
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/obj/Debug/netcoreapp3.0/Node.csprojAssemblyReference.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfoInputs.cache
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/obj/Debug/netcoreapp3.0/Node.AssemblyInfo.cs
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/obj/Debug/netcoreapp3.0/Node.csproj.CopyComplete
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/obj/Debug/netcoreapp3.0/Node.dll
+/Users/Pawel/Documents/Pawel/Studia/sem 5/TSST/Tsst_part1_git/Node/obj/Debug/netcoreapp3.0/Node.pdb
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Node.exe
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Node.deps.json
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Node.runtimeconfig.json
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Node.runtimeconfig.dev.json
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Node.dll
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Node.pdb
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Tools.dll
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\bin\Debug\netcoreapp3.0\Tools.pdb
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\obj\Debug\netcoreapp3.0\Node.csprojAssemblyReference.cache
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\obj\Debug\netcoreapp3.0\Node.AssemblyInfoInputs.cache
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\obj\Debug\netcoreapp3.0\Node.AssemblyInfo.cs
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\obj\Debug\netcoreapp3.0\Node.csproj.CopyComplete
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\obj\Debug\netcoreapp3.0\Node.dll
+C:\Users\M\Desktop\TSST-part1\TSST-part1\Node\obj\Debug\netcoreapp3.0\Node.pdb
