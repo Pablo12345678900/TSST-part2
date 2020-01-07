@@ -17,12 +17,14 @@ using System.Net;
 using System.Globalization;
 using Tools;
 using System.Threading;
+//przeczytajcie komnentarze, to tylko koncept
 
 namespace Host
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
     public partial class MainWindow : Window
     {
         Client client;
@@ -49,7 +51,7 @@ namespace Host
             {
                 Environment.Exit(1);
             }
-            Task.Run(GetConnectionWithCloud);
+            Task.Run(GetConnectionWithCloud); // łączymy się z chmurą
         }
 
 
@@ -82,9 +84,9 @@ namespace Host
                 Dispatcher.Invoke(() => ListBox12.Items.Add("This is " + client.clientName));
                 Dispatcher.Invoke(() => ListBox12.Items.Add(client.clientName + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with cable cloud"));
-                client.socketToCloud.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString()));
+                client.socketToCloud.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString())); // zgłasza się do chmury
                 byte[] buffer = new byte[256];
-                client.socketToCloud.Receive(buffer);// about used ports
+                client.socketToCloud.Receive(buffer);// chmura odsyła danemu node'owi których portów będzie używać i tam tworzy LRM'y
                 client.usedPorts = givePorts(buffer);
                 for (int i = 0; i < client.usedPorts.ToArray().Length; i++)
                 {
@@ -100,9 +102,9 @@ namespace Host
                 Task.Run(GetConnectionWithCloud);
             }
 
-            Task.Run(ConnectWithManagement);
+            Task.Run(ConnectWithManagement); // łączy się z systemem zarządzania
         }
-        public List<ushort> givePorts(byte[] bytes)
+        public List<ushort> givePorts(byte[] bytes) // zwróc z bajtów numery portów
         {
             List<ushort> list = new List<ushort>();
             for (int i = 0; i < bytes.Length; i = i + 2)
@@ -122,7 +124,7 @@ namespace Host
                 Dispatcher.Invoke(() => ListBox12.Items.Add("This is " + client.clientName));
                 Dispatcher.Invoke(() => ListBox12.Items.Add(client.clientName + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with management system"));
-                client.socketToManager.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString()));
+                client.socketToManager.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString())); // zgłasza się  do managera
 
             }
             catch (SocketException e)
@@ -132,25 +134,26 @@ namespace Host
             }
             foreach(var neighbour in client.Neighbours)
             {
-                GiveConnectionWithHost(neighbour); // CallRequest
+                GiveConnectionWithHost(neighbour); // wysyła żądanie polączenia z innymi hostami
             }
         }
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
             byte[] buffer = new byte[16];
             client.socketToManager.Send(Encoding.ASCII.GetBytes(client.clientIP.ToString() + " " + destination.ip.ToString() + " 10")); //callRequest(adres A, adres B, speed)
-            //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej
-            client.socketToManager.Receive(buffer);
+            //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej, wysyła to callRequest że chce taką przepustowość do takiego hosta
+            client.socketToManager.Receive(buffer); // odpowiedź od managera
             
-            if(buffer[0].ToString()=="A" && buffer[1].ToString()=="C" && buffer[2].ToString()=="K")
+            if(buffer[0].ToString()=="A" && buffer[1].ToString()=="C" && buffer[2].ToString()=="K") // jeśli okej to wyśle ACK
             {
-                destination.modulation = BitConverter.ToInt32(buffer, 4); // management returns modulation based on the length of calculated path
-                destination.firstFrequencySlot = BitConverter.ToUInt32(buffer, 8);
+                destination.modulation = BitConverter.ToInt32(buffer, 4); // dla danego sąsiada na podstawie zwróconej długości ścieżki w Routing Controller w managerze
+                // manager zadecyduje jakiej modulacji użyć
+                destination.firstFrequencySlot = BitConverter.ToUInt32(buffer, 8); // używane szczeliny do danego sąsiada
                 destination.lastFrequencySlot = BitConverter.ToUInt32(buffer, 12);
                 ListBox12.Items.Add("I've got path to " + destination.Name + ". You can start sending messages to this destination.");
-                comboBox1.Items.Add(destination);
+                comboBox1.Items.Add(destination); // dodajemy do możliwych adresatów wiadomości danego sąsiada
             }
-            WaitForData();
+            WaitForData(); // po uzyskaniu wszystkich informacji przechodzimy w stan taki jak w 1 etapie
         }
         public void WaitForData()
         {

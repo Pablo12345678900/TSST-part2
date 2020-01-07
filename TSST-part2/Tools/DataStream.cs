@@ -7,11 +7,12 @@ namespace Tools
 {
     public class DataStream
     {
-        public IPAddress sourceHost { get; set; }
-        public IPAddress destinationHost { get; set; }
+        public IPAddress sourceHost { get; set; } 
+        public IPAddress destinationHost { get; set; } 
         public IPAddress currentNode { get; set; }
         public ushort currentPort { get; set; }
         public string payload { get; set; }
+        
         public uint firstFrequencySlot { get; set; } // these slots will be given by host ( if requested path will be free)
         public uint lastFrequencySlot { get; set; }
 

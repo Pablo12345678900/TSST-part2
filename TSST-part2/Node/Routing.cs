@@ -153,19 +153,19 @@ namespace Node
             {
                 String data = null;
 
-
+                // manager będzie aktualizował te optical entry
                 
                 SocketToManager.Receive(bufferForManagement);// from CC in management we have to check whether it is possible to take requested capacity
                 Optical_Entry opticalEntry = packageHandler.FromBytesToEntry(bufferForManagement); // 
 
                 bool flag = true;
                 int k=0;
-                for(int i=0;i<linkResources.ToArray().Length;i++)
+                for(int i=0;i<linkResources.ToArray().Length;i++) // musimy znalexc odpowiedni LRM
                 {
-                    if(opticalEntry.outPort==linkResources[i].port)
+                    if(opticalEntry.outPort==linkResources[i].port)// patrzymy czy na danym porcie jest dostępny zakres szczelin
                     {
                         k = i;
-                        for(uint j=opticalEntry.startSlot;j<=opticalEntry.lastSlot;j++) // between demanded slots cant be any "free" slot
+                        for(uint j=opticalEntry.startSlot;j<=opticalEntry.lastSlot;j++) // patrzymy dla każdej szczeliny czy jest wolna
                         {
                             if(linkResources[i].slots[j]==false)
                             {
@@ -178,16 +178,16 @@ namespace Node
                         break;
                     }
                 }
-                SocketToManager.Send(Encoding.ASCII.GetBytes("G8 CONF MY M8")); // ack for manager
+                //SocketToManager.Send(Encoding.ASCII.GetBytes("G8 CONF MY M8")); // ack for manager- odsyłamy do managera że jest git
 
                 if (flag)
                 {
                     SocketToManager.Send(Encoding.ASCII.GetBytes("G8 CONF MY M8"));
                     for (uint j = opticalEntry.startSlot; j <= opticalEntry.lastSlot; j++)
                     {
-                        linkResources[k].slots[j] = false; // change state of slot
+                        linkResources[k].slots[j] = false; //zmieniamy stan tych szczelin bo są one żądane
                     }
-                        packageHandler.Optical_Table.Add(opticalEntry);// add to optical table
+                        packageHandler.Optical_Table.Add(opticalEntry);//można dodać wiersz do tablicy
                 } 
                 
                 Console.WriteLine(this.Name + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
