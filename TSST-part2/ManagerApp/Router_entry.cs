@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace ManagerApp
+namespace DomainApp
 {
     class Router_entry
     {

@@ -88,12 +88,13 @@ namespace Host
                 byte[] buffer = new byte[256];
                 client.socketToCloud.Receive(buffer);// chmura odsyła danemu node'owi których portów będzie używać i tam tworzy LRM'y
                 client.usedPorts = givePorts(buffer);
-                for (int i = 0; i < client.usedPorts.ToArray().Length; i++)
+               /* for (int i = 0; i < client.usedPorts.ToArray().Length; i++)
                 {
                     ushort port = client.usedPorts[i];
                     LinkResourceManager link = new LinkResourceManager(port);
+                    link.IPofNode = client.clientIP;
                     client.linkResources.Add(link); // adding LRMs
-                }
+                }*/
 
             }
             catch (SocketException e)
@@ -102,7 +103,7 @@ namespace Host
                 Task.Run(GetConnectionWithCloud);
             }
 
-            Task.Run(ConnectWithManagement); // łączy się z systemem zarządzania
+            Task.Run(ConnectWithDomain); // CPCC łączy się z domeną
         }
         public List<ushort> givePorts(byte[] bytes) // zwróc z bajtów numery portów
         {
@@ -114,23 +115,26 @@ namespace Host
              }
             return list;
         }
-        public void ConnectWithManagement()
+        public void ConnectWithDomain()
         {
             try
             {
 
-                client.socketToManager = new Socket(client.cloudIP.AddressFamily, SocketType.Stream, ProtocolType.Tcp); // Stream uses TCP protocol
-                client.socketToManager.Connect(new IPEndPoint(client.cloudIP, client.cloudPort)); //connect with server
+                client.socketToDomain = new Socket(client.cloudIP.AddressFamily, SocketType.Stream, ProtocolType.Tcp); // Stream uses TCP protocol
+                client.socketToDomain.Connect(new IPEndPoint(client.cloudIP, client.cloudPort)); //connect with server
                 Dispatcher.Invoke(() => ListBox12.Items.Add("This is " + client.clientName));
                 Dispatcher.Invoke(() => ListBox12.Items.Add(client.clientName + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with management system"));
-                client.socketToManager.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString())); // zgłasza się  do managera
+                
+                
+               
+              //  client.socketToDomain.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString())); // zgłasza się  do Domaina
 
             }
             catch (SocketException e)
             {
                 ListBox12.Items.Add(client.clientName + ": Cant get connection");
-                Task.Run(ConnectWithManagement);
+                Task.Run(ConnectWithDomain);
             }
             foreach(var neighbour in client.Neighbours)
             {
@@ -140,14 +144,14 @@ namespace Host
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
             byte[] buffer = new byte[16];
-            client.socketToManager.Send(Encoding.ASCII.GetBytes(client.clientIP.ToString() + " " + destination.ip.ToString() + " 10")); //callRequest(adres A, adres B, speed)
+            client.socketToDomain.Send(Encoding.ASCII.GetBytes("NCC-GET " +client.clientIP.ToString() + " " + destination.ip.ToString() + " 10")); //callRequest(adres A, adres B, speed)
             //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej, wysyła to callRequest że chce taką przepustowość do takiego hosta
-            client.socketToManager.Receive(buffer); // odpowiedź od managera
+            client.socketToDomain.Receive(buffer); // odpowiedź od Domaina
             
             if(buffer[0].ToString()=="A" && buffer[1].ToString()=="C" && buffer[2].ToString()=="K") // jeśli okej to wyśle ACK
             {
-                destination.modulation = BitConverter.ToInt32(buffer, 4); // dla danego sąsiada na podstawie zwróconej długości ścieżki w Routing Controller w managerze
-                // manager zadecyduje jakiej modulacji użyć
+                destination.modulation = BitConverter.ToInt32(buffer, 4); // dla danego sąsiada na podstawie zwróconej długości ścieżki w Routing Controller w Domainze
+                // Domain zadecyduje jakiej modulacji użyć
                 destination.firstFrequencySlot = BitConverter.ToUInt32(buffer, 8); // używane szczeliny do danego sąsiada
                 destination.lastFrequencySlot = BitConverter.ToUInt32(buffer, 12);
                 ListBox12.Items.Add("I've got path to " + destination.Name + ". You can start sending messages to this destination.");

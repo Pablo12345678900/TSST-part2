@@ -7,986 +7,365 @@ using System.Text;
 using System.Threading;
 using System.Xml.Serialization;
 using System.Linq;
-using Tools.Table_Entries;
+using Tools;
 using System.Globalization;
+using CableCloud;
+/// <summary>
+/// 
+/// </summary>
 
-namespace ManagerApp
+namespace DomainApp
 {
+    public class StateObject
+    {
+        // Client  socket.  
+        public Socket workSocket = null;
+
+        // Size of receive buffer.  
+        public const int BufferSize = 128;
+
+        // Receive buffer.  
+        public byte[] buffer = new byte[BufferSize];
+
+        // Received data string.  
+        public StringBuilder sb = new StringBuilder();
+    }
     class Program
     {
-        public static Database config_DB = new Database();
-        public static Router_Database Router_DB = new Router_Database();
-        public static int ManagerPort;
+        
+        public static Domain Domain;
 
         static void Main(string[] args)
         {
-            //Manager port
-            XmlSerializer serializer1 = new XmlSerializer(typeof(int));
-            FileStream fs1 = new FileStream("port.txt", FileMode.Open);
-            ManagerPort = (int)serializer1.Deserialize(fs1);
+            
+            Domain=Domain.readInfo(args[0]);
 
-            //Uploading configuration data from a file
-            XmlSerializer serializer = new XmlSerializer(typeof(Database));
-            FileStream fs = new FileStream("configs.txt", FileMode.Open);
-            config_DB = (Database)serializer.Deserialize(fs);
+            Domain.domainServer.Listen(50);
 
-            Thread Thread1 = new Thread(new ThreadStart(AsynchronousSocketListener.StartListening));
-            Thread Thread2 = new Thread(new ThreadStart(Management_system));
-            Thread1.Start();
-            Thread2.Start();
-
-
-        }
-
-        public static void Management_system()
-        {
-            Console.WriteLine(">> Welcome to the Management System for the emulated MPLS network. " +
-                "This program is a part of a project created for the TSST course. " +
-                "For more information about how to use this tool, input \'help\'."
-                );
-            while (true)
+            while(true)
             {
-                Console.WriteLine("Available commands: help, send, config, sendall");
-                String option = Console.ReadLine();
-                switch (option)
-                {
-                    case "send":
-                        TUI_send();
-                        break;
-                    case "config":
-                        Modify_config();
-                        break;
-                    case "help":
-                        Display_help();
-                        break;
-                    case "sendall":
-                        Sendall();
-                        break;
-                    default:
-                        Console.WriteLine("Command not supported.");
-                        break;
-                }
-                Console.WriteLine(">> You are now in the Management System's main menu.");
+                Domain.domainDone.Reset();
+                Domain.domainServer.BeginAccept(new AsyncCallback(AcceptCallBack), Domain.domainServer);
+                Domain.domainDone.WaitOne();
             }
-
+           
+           // Thread2.Start();
 
         }
-        public static void Modify_config()
+      
+        public static void AcceptCallBack(IAsyncResult asyncResult)
         {
-            Console.WriteLine(">> You are now in routers' configuration menu. You can view configurations or modify them.");
-            while (true)
-            {
-                Console.WriteLine("Available configurations:\nID\tName\tDescription");
-                int index = 1;
-                foreach (R_config RC in config_DB.configs)
-                {
-                    Console.WriteLine(index + ".\t" + RC.R_name + "\t" + RC.Description);
-                    index = index + 1;
-                }
-                Console.WriteLine("Please input the number (ID) of the configuration to view/update, " +
-                    "\'n\' if you desire to create a new configuration, or \'q\' to quit:");
-                String option = Console.ReadLine();
-                if (option.Equals("q")) { break; }
-                if (option.Equals("n")) 
-                {
-                    Console.WriteLine("Input the name of the new configuration:");
-                    String name = Console.ReadLine();
-                    Console.WriteLine("Input the description of the new configuration");
-                    String desc = Console.ReadLine();
-                    bool flag = false;
-                    foreach(R_config RC in config_DB.configs)
-                    {
-                        if (RC.R_name.Equals(name)) { if (RC.Description.Equals(desc)) { flag = true; break; } }
+            Domain.domainDone.Set();
+            Socket listener = (Socket)asyncResult.AsyncState;
+            Socket handler = listener.EndAccept(asyncResult);
+            StateObject stateObject = new StateObject();
+            stateObject.workSocket = handler;
 
-                    }
-                    if (flag) { Console.WriteLine("Combination of values already in use!"); break; }
-                    else
-                    {
-                        R_config newconfig = new R_config();
-                        newconfig.R_name = name;
-                        newconfig.Description = desc;
-                        config_DB.configs.Add(newconfig);
-                        Console.WriteLine("Configuration created successfully." +
-                            " To set values of the new config, update it in the config menu.");
+            handler.BeginReceive(stateObject.buffer, 0, stateObject.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), stateObject);
 
-                    }
-                    
-                    break; 
-                }
-
-                if (int.TryParse(option, out index) == false)
-                {
-                    Console.WriteLine("Input not supported.");
-                    continue;
-                }
-                if (index > 0 && index <= config_DB.configs.Count())
-                {
-                    index = index - 1;
-                }
-                else
-                {
-                    Console.WriteLine("Input not supported.");
-                    continue;
-                }
-                while (true)
-                {
-                    int index1 = 1;
-                    Console.WriteLine("Selected configuration is: " + config_DB.configs[index].R_name + " / " + config_DB.configs[index].Description);
-                    Console.WriteLine("Available configuration tables are:\n1.\tFEC\n2.\tFTN\n3.\tILM\n4.\tNHLFE\n5.\tFIB");
-                    Console.WriteLine("Please input the number of the table to view / update or \'q\' to quit:");
-                    option = Console.ReadLine();
-                    if (option.Equals("q")) { break; }
-                    switch (option)
-                    {
-                        case "1": //FEC
-                            Console.WriteLine("Selected table is FEC.\nEntry ID \tDestination Address\tAssigned FEC");
-                            foreach (FEC_Entry FC in config_DB.configs[index].FEC)
-                            {
-                                
-                                Console.WriteLine(index1 + ".\t\t" + FC.destinationIP + "\t\t" + FC.FEC);
-                                index1 = index1 + 1;
-                            }
-                            Console.WriteLine("Please input the number (ID) of the entry to update, \'n\' to create a new entry, or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            if (option.Equals("n")) {
-                                FEC_Entry newFEC = new FEC_Entry();
-                                Console.WriteLine("Input new destination address for this FEC entry or \'q\' to quit:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (IPAddress.TryParse(option, out IPAddress temp1))
-                                    {
-                                        newFEC.destinationIP = option;
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                Console.WriteLine("Input new FEC ID for this entry(must be unique):");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-
-                                if (int.TryParse(option, out int temp))
-                                {
-                                    bool flag = true;
-                                    foreach (FEC_Entry FC in config_DB.configs[index].FEC)
-                                    {
-                                        if (FC.FEC == int.Parse(option))
-                                        { flag = false; }
-                                    }
-                                    if (flag)
-                                    {
-                                        newFEC.FEC = int.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Value already in use!"); break; }
-                                }
-
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                
-                                config_DB.configs[index].FEC.Add(newFEC);
-                                Console.WriteLine("Entry added successfully!");
-
-                                break; 
-                            }
-
-                            if (int.TryParse(option, out index1) == false)
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            if (index1 > 0 && index1 <= config_DB.configs[index].FEC.Count())
-                            {
-                                index1 = index1 - 1;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            Console.WriteLine("Input new destination address for this FEC entry or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (IPAddress.TryParse(option, out IPAddress temp))
-                                {
-                                    config_DB.configs[index].FEC[index1].destinationIP = option;
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Input new FEC ID for this entry:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (int.TryParse(option, out int temp))
-                                {
-                                    config_DB.configs[index].FEC[index1].FEC = int.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Entry updated successfully!");
-
-                            break;
-                        case "2": //FTN
-                            Console.WriteLine("Selected table is FTN.\nEntry ID \tFEC\tNHLFE");
-                            foreach (FTN_Entry FC in config_DB.configs[index].FTN)
-                            {
-
-                                Console.WriteLine(index1 + ".  \t" + FC.FEC + "  \t" + FC.NHLFE_ID);
-                                index1 = index1 + 1;
-                            }
-                            Console.WriteLine("Please input the number (ID) of the entry to update, \'n\' to create a new entry, or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            if (option.Equals("n"))
-                            {
-                                FTN_Entry newFEC = new FTN_Entry();
-                                Console.WriteLine("Input FEC ID for this FTN entry or \'q\' to quit:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (int.TryParse(option, out int temp))
-                                    {
-                                        newFEC.FEC = int.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                Console.WriteLine("Input new NHLFE ID for this entry:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (int.TryParse(option, out int temp))
-                                    {
-                                        newFEC.NHLFE_ID = int.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                config_DB.configs[index].FTN.Add(newFEC);
-                                Console.WriteLine("Entry added successfully!");
-
-                                break;
-                            }
-
-                            if (int.TryParse(option, out index1) == false)
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            if (index1 > 0 && index1 <= config_DB.configs[index].FTN.Count())
-                            {
-                                index1 = index1 - 1;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            Console.WriteLine("Input new FEC ID for this FTN entry or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (int.TryParse(option, out int temp))
-                                {
-                                    config_DB.configs[index].FTN[index1].FEC = int.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Input new NHLFE ID for this entry:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (int.TryParse(option, out int temp))
-                                {
-                                    config_DB.configs[index].FTN[index1].NHLFE_ID = int.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Entry updated successfully!");
-                            break;
-
-
-                        case "3": //ILM
-                            Console.WriteLine("Selected table is ILM.\nEntry ID \tIngress Port\tIngress Label\tNHLFE ID");
-                            foreach (ILM_Entry FC in config_DB.configs[index].ILM)
-                            {
-
-                                Console.WriteLine(index1 + ".\t\t" + FC.portIn + "\t\t" + FC.labelIn + "\t\t" + FC.NHLFE_ID);
-                                index1 = index1 + 1;
-                            }
-                            Console.WriteLine("Please input the number (ID) of the entry to update, \'n\' to create a new entry, or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            if (option.Equals("n"))
-                            {
-                                ILM_Entry newFEC = new ILM_Entry();
-                                Console.WriteLine("Input the ingress port for this ILM entry or \'q\' to quit:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (ushort.TryParse(option, out ushort temp))
-                                    {
-                                        newFEC.portIn = ushort.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                Console.WriteLine("Input new ingress label for this entry:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (ushort.TryParse(option, out ushort temp))
-                                    {
-                                        newFEC.labelIn = ushort.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                Console.WriteLine("Input new NHLFE ID for this entry:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (int.TryParse(option, out int temp))
-                                    {
-                                        newFEC.NHLFE_ID = int.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                config_DB.configs[index].ILM.Add(newFEC);
-                                Console.WriteLine("Entry added successfully!");
-
-                                break;
-                            }
-
-                            if (int.TryParse(option, out index1) == false)
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            if (index1 > 0 && index1 <= config_DB.configs[index].ILM.Count())
-                            {
-                                index1 = index1 - 1;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            Console.WriteLine("Input new ingress port for this ILM entry or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (ushort.TryParse(option, out ushort temp))
-                                {
-                                    config_DB.configs[index].ILM[index1].portIn = ushort.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Input new ingress label for this entry:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (ushort.TryParse(option, out ushort temp))
-                                {
-                                    config_DB.configs[index].ILM[index1].labelIn = ushort.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Input new NHLFE ID for this entry:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (int.TryParse(option, out int temp))
-                                {
-                                    config_DB.configs[index].ILM[index1].NHLFE_ID = int.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-
-
-                            Console.WriteLine("Entry updated successfully!");
-                            break;
-                        case "4": //NHLFE
-                            Console.WriteLine("Selected table is NHLFE.\nEntry ID\tNHLFE_ID\tAction\tNumber of labels to pop\tEgress port\tLabels to push");
-                            foreach (NHLFE_Entry FC in config_DB.configs[index].NHLFE)
-                            {
-                                String labels = "";
-                                foreach (ushort label in FC.labelsOut) { labels = labels +" " +label; }
-                                labels = labels + " (top)";
-
-                                Console.WriteLine(index1 + ".\t\t" + FC.NHLFE_ID + "\t\t" + FC.action + "\t\t" + FC.popDepth+"\t\t"+FC.portOut 
-                                    + "\t\t"+ labels);
-                                index1 = index1 + 1;
-                            }
-                            Console.WriteLine("Please input the number (ID) of the entry to update, \'n\' to create a new entry, or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            if (option.Equals("n"))
-                            {
-                                NHLFE_Entry newFEC = new NHLFE_Entry();
-                                Console.WriteLine("Input the NHLFE_id for this NHLFE entry or \'q\' to quit (must be unique):");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (int.TryParse(option, out int temp))
-                                    {
-                                        bool flag = true;
-                                        foreach (NHLFE_Entry FC in config_DB.configs[index].NHLFE) { if (FC.NHLFE_ID == int.Parse(option))
-                                            { flag = false; } }
-                                        if (flag)
-                                        {
-                                            newFEC.NHLFE_ID = int.Parse(option);
-                                        }
-                                        else { Console.WriteLine("Value already in use!"); break; }
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                Console.WriteLine("Input \'1\' for action to be \'pop\', \'2\' for action to be \'push\' or \'3\' for \'swap\'," +
-                                    " or \'q\' to quit:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    bool flag = false;
-                                    switch (option)
-                                    {
-                                        case "1": newFEC.action = "pop"; break;
-                                        case "2": newFEC.action = "push"; break;
-                                        case "3": newFEC.action = "swap"; break;
-                                        default: Console.WriteLine("Incorrect input!"); flag = true; break;
-                                    }
-                                    if (flag) { break; }
-                                }
-                                if (newFEC.action.Equals("pop"))
-                                {
-                                    Console.WriteLine("Input number of labels to pop for this entry or \'q\' to quit:");
-                                    option = Console.ReadLine();
-                                    if (option.Equals("q")) { break; }
-                                    else
-                                    {
-                                        if (int.TryParse(option, out int temp))
-                                        {
-                                            newFEC.popDepth = int.Parse(option);
-                                        }
-                                        else { Console.WriteLine("Input could not be parsed."); break; }
-                                    }
-                                }
-                                else { newFEC.popDepth=0;}
-                                    Console.WriteLine("Input the egress port for this entry or \'q\' to quit:");
-                                    option = Console.ReadLine();
-                                    if (option.Equals("q")) { break; }
-                                    else
-                                    {
-                                        if (ushort.TryParse(option, out ushort temp))
-                                        {
-                                            newFEC.portOut = ushort.Parse(option);
-                                        }
-                                        else { Console.WriteLine("Input could not be parsed."); break; }
-                                    }
-
-                                if (newFEC.action.Equals("push"))
-                                {
-                                    Console.WriteLine("Input labels to be pushed, press ENTER after each one," +
-                                        "to stop inputing, write \'last\'. The last label provided will be the top one. Use \'q\' to quit.");
-                                    bool flag = false;
-                                    int counter = 0;
-                                    while (true)
-                                    {
-                                        Console.WriteLine("Input one label:");
-                                        option = Console.ReadLine();
-                                        if (option.Equals("q")) { flag = true; break; }
-                                        if (option.Equals("last") && counter > 0) { break; }
-                                        if (ushort.TryParse(option, out ushort temp))
-                                        {
-                                            counter = counter + 1;
-                                            ushort temp_label = ushort.Parse(option);
-                                            newFEC.labelsOut.Add(temp_label);
-                                        }
-                                        else { Console.WriteLine("Input could not be parsed."); flag = true; break; }
-                                    }
-                                    if (flag) { break; }
-                                }
-
-                                if (newFEC.action.Equals("swap"))
-                                {
-                                    Console.WriteLine("Input a label to be swapped to. Use \'q\' should you want to quit.");
-                                        Console.WriteLine("Input one label:");
-                                        option = Console.ReadLine();
-                                        if (option.Equals("q")) { break; }
-                                        if (ushort.TryParse(option, out ushort temp))
-                                        {
-                                            ushort temp_label = ushort.Parse(option);
-                                            newFEC.labelsOut.Add(temp_label);
-                                        }
-                                        else { Console.WriteLine("Input could not be parsed."); break; }
-                                    }
-
-
-                                config_DB.configs[index].NHLFE.Add(newFEC);
-                                Console.WriteLine("Entry added successfully!");
-
-                                break;
-                            }
-
-                            if (int.TryParse(option, out index1) == false)
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            if (index1 > 0 && index1 <= config_DB.configs[index].ILM.Count())
-                            {
-                                index1 = index1 - 1;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            Console.WriteLine("Input the NHLFE_id for this NHLFE entry or \'q\' to quit (must be unique):");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (int.TryParse(option, out int temp))
-                                {
-                                    bool flag = true;
-                                    foreach (NHLFE_Entry FC in config_DB.configs[index].NHLFE)
-                                    {
-                                        if (FC.NHLFE_ID == int.Parse(option))
-                                        { flag = false; }
-                                    }
-                                    if (flag)
-                                    {
-                                        config_DB.configs[index].NHLFE[index1].NHLFE_ID = int.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Value already in use!"); break; }
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Input \'1\' for action to be \'pop\' and \'2\' for action to be \'push\' or \'switch:\'," +
-                                " or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                bool flag = false;
-                                switch (option)
-                                {
-                                    case "1": config_DB.configs[index].NHLFE[index1].action = "pop"; break;
-                                    case "2": config_DB.configs[index].NHLFE[index1].action = "push"; break;
-                                    default: Console.WriteLine("Incorrect input!"); flag = true; break;
-                                }
-                                if (flag) { break; }
-                            }
-                            if (config_DB.configs[index].NHLFE[index1].action.Equals("pop"))
-                            {
-                                Console.WriteLine("Input number of labels to pop for this entry or \'q\' to quit:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (int.TryParse(option, out int temp))
-                                    {
-                                        config_DB.configs[index].NHLFE[index1].popDepth = int.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                            }
-                            else { config_DB.configs[index].NHLFE[index1].popDepth = 0; }
-                            Console.WriteLine("Input the egress port for this entry or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (ushort.TryParse(option, out ushort temp))
-                                {
-                                    config_DB.configs[index].NHLFE[index1].portOut = ushort.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-
-                            if (config_DB.configs[index].NHLFE[index1].action.Equals("push"))
-                            {
-                                Console.WriteLine("Input labels to be pushed (one if switched), press ENTER after each one," +
-                                    "to stop inputing, write \'last\'. The last label provided will be the top one. Use \'q\' to quit.");
-                                bool flag = false;
-                                int counter = 0;
-                                while (true)
-                                {
-                                    Console.WriteLine("Input one label:");
-                                    option = Console.ReadLine();
-                                    if (option.Equals("q")) { flag = true; break; }
-                                    if (option.Equals("last") && counter > 0) { break; }
-                                    if (ushort.TryParse(option, out ushort temp))
-                                    {
-                                        counter = counter + 1;
-                                        config_DB.configs[index].NHLFE[index1].labelsOut.Add(ushort.Parse(option));
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); flag = true; break; }
-                                }
-                                if (flag) { break; }
-                            }
-                            else { config_DB.configs[index].NHLFE[index1].labelsOut.Add(0); }
-
-                            Console.WriteLine("Entry updated successfully!");
-
-
-                            break;
-                        case "5": //FIB
-                            Console.WriteLine("Selected table is FIB.\nEntry ID \tDestination Address\tEgress port");
-                            foreach (FIB_Entry FC in config_DB.configs[index].FIB)
-                            {
-
-                                Console.WriteLine(index1 + ".\t\t" + FC.destinationIP + "\t\t" + FC.portOut);
-                                index1 = index1 + 1;
-                            }
-                            Console.WriteLine("Please input the number (ID) of the entry to update, \'n\' to create a new entry, or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            if (option.Equals("n"))
-                            {
-                                FIB_Entry newFEC = new FIB_Entry();
-                                Console.WriteLine("Input new destination address for this FIB entry or \'q\' to quit:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (IPAddress.TryParse(option, out IPAddress temp))
-                                    {
-                                        newFEC.destinationIP = option;
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                Console.WriteLine("Input new egress port for this entry:");
-                                option = Console.ReadLine();
-                                if (option.Equals("q")) { break; }
-                                else
-                                {
-                                    if (ushort.TryParse(option, out ushort temp))
-                                    {
-                                        newFEC.portOut = ushort.Parse(option);
-                                    }
-                                    else { Console.WriteLine("Input could not be parsed."); break; }
-                                }
-                                config_DB.configs[index].FIB.Add(newFEC);
-                                Console.WriteLine("Entry added successfully!");
-
-                                break;
-                            }
-
-                            if (int.TryParse(option, out index1) == false)
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            if (index1 > 0 && index1 <= config_DB.configs[index].FIB.Count())
-                            {
-                                index1 = index1 - 1;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Input not supported.");
-                                continue;
-                            }
-                            Console.WriteLine("Input new destination address for this FIB entry or \'q\' to quit:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (IPAddress.TryParse(option, out IPAddress temp))
-                                {
-                                    config_DB.configs[index].FIB[index1].destinationIP = option;
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Input new egress port for this entry:");
-                            option = Console.ReadLine();
-                            if (option.Equals("q")) { break; }
-                            else
-                            {
-                                if (ushort.TryParse(option, out ushort temp))
-                                {
-                                    config_DB.configs[index].FIB[index1].portOut = ushort.Parse(option);
-                                }
-                                else { Console.WriteLine("Input could not be parsed."); break; }
-                            }
-                            Console.WriteLine("Entry updated successfully!");
-
-                            break;
-                        default:
-                            Console.WriteLine("Input not supported.");
-                            break;
-                    }
-                }
-
-            }
         }
-        public static void TUI_send()
+        public static void ReceiveCallBack(IAsyncResult asyncResult)
         {
-            Console.WriteLine(">> You are now in the sending menu.");
-            while (true)
-            {
-                Console.WriteLine("Available network nodes:");
-                foreach (Router_entry i in Router_DB.Routers)
-                {
-                    Console.WriteLine(i.Router_id);
-                }
-                Console.WriteLine("Input the node to communicate with or exit using \'q\':");
-                String option = Console.ReadLine();
-                if (option.Equals("q")) { return; }
-                int flag = 0;
-                int selected_router = -1;
-                for (int i = 0; i < Router_DB.Routers.Count(); i++)
-                {
-                    selected_router = i;
-                    if (Router_DB.Routers[i].Router_id.Equals(option)) { flag = 1; break; }
-                }
-                if (flag == 0) { Console.WriteLine("No entry found for: " + option); continue; }
-
-                while (true)
-                {
-                    Console.WriteLine("Available configurations:\nID\tName\tDescription");
-                    int index = 1;
-                    foreach (R_config RC in config_DB.configs)
-                    {
-                        Console.WriteLine(index + ".\t" + RC.R_name + "\t" + RC.Description);
-                        index = index + 1;
-                    }
-                    Console.WriteLine("Please input the number (ID) of the configuration to send or \'q\' to quit:");
-                    option = Console.ReadLine();
-                    if (option.Equals("q")) 
-                    { break; }
-                    if (int.TryParse(option, out index) == false)
-                    {
-                        Console.WriteLine("Input not supported.");
-                        continue;
-                    }
-                    if (index > 0 && index <= config_DB.configs.Count())
-                    {
-                        index = index - 1;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Input not supported.");
-                        continue;
-                    }
-
-                     Send_config(selected_router, index);
-                    break;
-
-                }
-            }
-        }
-
-        public static void Sendall()
-        {
-            Console.WriteLine(">> You are now in the mass sending menu.");
-            Console.WriteLine("Input the description to send to all nodes with a described " +
-                "configuration or exit using \'q\':");
-            String option = Console.ReadLine();
-            if (option.Equals("q")) { return; }
-
-
-            for (int i = 0; i < config_DB.configs.Count(); i++)
-            {
-                if (config_DB.configs[i].Description.Equals(option))
-                {
-                    for (int k = 0; k < Router_DB.Routers.Count(); k++)
-                    {
-                        if (Router_DB.Routers[k].Router_id.Equals(config_DB.configs[i].R_name))
-                        {
-                            Send_config(k, i);
-                        }
-                    }
-
-                }
-            }
-        }
-
-        public static void Send_config(int Router_index, int Config_index)
-        {
-
+            StateObject state = (StateObject)asyncResult.AsyncState;
+            Socket handler = state.workSocket; //socket of client
+            int ReadBytes;
             try
             {
- 
-                try
-                {
-
-                    Socket sender = Router_DB.Routers[Router_index].Router_connection;
-                    XmlSerializer serializer = new XmlSerializer(typeof(R_config));
-                    StringWriter textWriter = new StringWriter();
-
-                    serializer.Serialize(textWriter, config_DB.configs[Config_index]);
-                    String content = textWriter.ToString();
- 
-                    byte[] msg = Encoding.ASCII.GetBytes(content);
-  
-                   int bytesSent = sender.Send(msg);
-
-                    Console.WriteLine("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
-                                            CultureInfo.InvariantCulture) + "] "
-                                            + "Configuration sent to " + Router_DB.Routers[Router_index].Router_id);
- 
-
-                }
-                catch (ArgumentNullException ane)
-                {
-                    Console.WriteLine("ArgumentNullException : {0}", ane.ToString());
-                }
-                catch (SocketException se)
-                {
-                    Console.WriteLine("SocketException : {0}", se.ToString());
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Unexpected exception : {0}", e.ToString());
-                }
+                ReadBytes = handler.EndReceive(asyncResult);
 
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
-            }
-        }
-        public static void Display_help()
-        {
-            Console.WriteLine("The system should provide all information about actions needed to be taken " +
-                "in order to be able to use it successfully. From the main menu you can use \'config\' to view and " +
-                "update configurations of routers, and \'send\' to send an updated or different configuration to a specific" +
-                " router that exists in the database - in order to be in the database, the router needs to call in first. When a router " +
-                "calls in for the first time, a default configuration is sent as a response.");
-        }
-
-
-        public class StateObject
-        {
-            public Socket workSocket = null;
-            public const int BufferSize = 1024;
-            public byte[] buffer = new byte[BufferSize];
-            public StringBuilder sb = new StringBuilder();
-        }
-
-        public class AsynchronousSocketListener
-        {
-            public static ManualResetEvent allDone = new ManualResetEvent(false);
-
-            public AsynchronousSocketListener()
-            {
+                Console.WriteLine(e);
+                throw;
             }
 
-            public static void StartListening()
+            state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, ReadBytes));
+            var message = state.sb.ToString().Split(' ');
+            // first message must be send to get information about connected socket: First Message <Ip address>
+            if (message[0].Equals("NCC-GET")) // żądanie hosta na połączenie
             {
+                String source = message[1];
+                String destination = message[2];
+                int speed = int.Parse(message[3]);
+                IPAddress sourceAddress = Domain.NCC.DirectoryRequest(source);
+                IPAddress destAddress = Domain.NCC.DirectoryRequest(destination);
+                bool flag = false;
+                flag = Domain.NCC.PolicyRequest(sourceAddress, destAddress);
 
-                IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), ManagerPort);
-
-                Socket listener = new Socket(IPAddress.Parse("127.0.0.1").AddressFamily,
-                    SocketType.Stream, ProtocolType.Tcp);
-
-                try
+                if (sourceAddress != null && destAddress != null)
+                {                               
+                }
+                else
                 {
-                    listener.Bind(localEndPoint);
-                    listener.Listen(100);
+                    Domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), secondDomainPort));
+                    List<byte> buffer = new List<byte>();
+                    buffer.AddRange(Encoding.ASCII.GetBytes("RC-giveDomainPoint " + sourceAddress.GetAddressBytes() + " "+ destAddress.GetAddressBytes());                
+                    Domain.domainClient.Send(buffer.ToArray());
+                }
+                if (flag)
+                { 
+                    Console.WriteLine("You can set connection");
+                }
+                if (sourceAddress != null && destAddress != null)
+                { //RC w swoim pliku ma odległość przy danym source i destination więc to też do zrobienia
 
-                    while (true)
+                    Domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, Domain.RC.cables, Domain.RC.lrms, numberOfSlots); // prototyp funkcji Dijkstry
+                }
+
+                //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
+                
+            }
+            if(message[0].Equals("RC-SecondDomainTopology"))
+            {
+                IPAddress borderAddress = IPAddress.Parse(message[1]);
+                Domain.RC.DijkstraAlgorithm(sourceAddress, borderAddress, Domain.RC.cables, Domain.RC.lrms, numberOfSlots);
+            }
+            if(message[0].Equals("CC-callin"))
+            {
+                Domain.CC.IPfromSocket.Add(handler, IPAddress.Parse(message[1]));
+                Domain.CC.SocketfromIP.Add(IPAddress.Parse(message[1]), handler); // router wysyła też swoje LRMy więc trzeba je dodać do RC
+
+            }
+            if(message[0].Equals("RC-giveDomainPoint"))
+            {
+                //zwróci punkt bazując na tym kto jst sourcem a kto destination
+                IPAddress ipBorderNode = null;
+                ushort portBorderNode=0;
+                Domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), secondDomainPort));
+                List<byte> buffer = new List<byte>();
+                buffer.AddRange(Encoding.ASCII.GetBytes("RC-SecondDomainTopology " + ipBorderNode.GetAddressBytes() + " " +BitConverter.GetBytes(portBorderNode)));
+                Domain.domainClient.Send(buffer.ToArray());
+            }
+            state.sb.Clear();
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
+        }
+     
+        
+
+      
+
+      
+
+           // zwykła dijkstra, trzeba wrzucić ją w RC i napisać prawidłową
+            
+            public  static List<Cable> DijkstraAlgorithm(IPAddress source, IPAddress destination, List<Cable> cables, List<LinkResourceManager> links,int requiredSpeed, int numOfSlots, List<IPAddress> Q, List<IPAddress> S)
+            {
+                List<Cable> usedCables = new List<Cable>();
+                int n = Q.Count;
+                int j = 0;
+                for(int i=0;i<n;i++)
+                {
+                    if (source == Q[i])
+                        break;
+                    ++j;
+                }
+               
+                int[] d = new int[n];
+                int[] p = new int[n];
+                for(int i=0;i<n;i++)
+                {
+                    if (i == j)
+                        d[i] = 0;
+                    else
                     {
-
-                        allDone.Reset();
-
-
-                        listener.BeginAccept(
-                            new AsyncCallback(AcceptCallback),
-                            listener);
-
-                        allDone.WaitOne();
+                        d[i] = int.MaxValue;
+                        p[i] = -1;
                     }
-
                 }
-                catch (Exception e)
+                while(Q.Count>0)
                 {
-                    Console.WriteLine(e.ToString());
-                }
-
-                Console.WriteLine("\nPress ENTER to continue...");
-                Console.Read();
-
-            }
-
-            public static void AcceptCallback(IAsyncResult ar)
-            {
-                allDone.Set();
-
-                Socket listener = (Socket)ar.AsyncState;
-                Socket handler = listener.EndAccept(ar);
-
-                StateObject state = new StateObject();
-                state.workSocket = handler;
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(ReadCallback), state);
-            }
-
-            public static void ReadCallback(IAsyncResult ar)
-            {
-                String content = String.Empty;
-
-                StateObject state = (StateObject)ar.AsyncState;
-                Socket handler = state.workSocket;
-
-                int bytesRead = handler.EndReceive(ar);
-
-                if (bytesRead > 0)
-                {
-                    state.sb.Append(Encoding.ASCII.GetString(
-                        state.buffer, 0, bytesRead));
-
-
-                    content = state.sb.ToString();
-
-                    Console.WriteLine("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
-                                            CultureInfo.InvariantCulture) + "] "
-                                            + content + " called in.");
-
-
-
-                    Router_entry RE = new Router_entry(content, handler);
-                    Router_DB.Routers.Add(RE);
-
-                    XmlSerializer serializer = new XmlSerializer(typeof(R_config));
-                    StringWriter textWriter = new StringWriter();
-
-                    int index = -1;
-
-                    for (int i = 0; i < config_DB.configs.Count(); i++)
+                    int min = int.MaxValue;
+                    int index = 0;
+                    for(int i=0;i<n;i++)
                     {
-                        index = i;
-                        if (content == config_DB.configs[i].R_name && config_DB.configs[i].Description == "default")
+                        if(d[i]<=min)
                         {
-                            break;
+                            min = d[i];
+                            index = i;
                         }
                     }
-                    String name_r = "";
-                    if (index != -1)
+                    IPAddress ip = Q[index];
+                    S.Add(ip);
+                    Q.RemoveAt(index);
+                    List<IPAddress> neighbours = new List<IPAddress>();
+                    foreach(var cable in cables)
                     {
-                        name_r = content;
-                        serializer.Serialize(textWriter, config_DB.configs[index]);
-                        content = textWriter.ToString();
-                        Send(handler, content);
+                        if(cable.stateOfCable==true && cable.Node1==ip)
+                        {
+                            neighbours.Add(cable.Node2);
+                        }
+                        if (cable.stateOfCable == true && cable.Node2 == ip)
+                        {
+                            neighbours.Add(cable.Node1);
+                        }
+                    }
+                    for(int i=0; i<neighbours.Count;i++)
+                    {
+                        bool flaga = false;
+                        for(int k=0; k<Q.Count;k++)
+                        {
+                            if(Q[k]==neighbours[i])
+                            {
+                                flaga = true;
+                                break;
+                            }
 
-                        Console.WriteLine("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
-                            CultureInfo.InvariantCulture) + "] "
-                            + "Default configuration sent to " + name_r);
+                        }
+                        if (flaga)
+                        {
+                            int w = 0;
+                            int u = 0;
+                            for(int k=0;k<Q.Count;k++)
+                            {
+                                if (Q[k] == ip)
+                                    u = k;
+                                if (Q[k] == neighbours[i])
+                                    w = k;
+                            }
+                            Cable connectingCable=null;
+                            foreach(var cable in cables)
+                            {
+                                if ((cable.Node1 == neighbours[i] && cable.Node2 == ip) || (cable.Node2 == neighbours[i] && cable.Node1 == ip))
+                                {
+                                    connectingCable = cable;
+                                    break;
+                                }
+                            }
+                            if(d[w]>d[u]+connectingCable.length)
+                            {
+                                d[w] = d[u] + connectingCable.length;
+                                p[w] = u;
+                            }
+                        }
+                        else
+                            continue;
                     }
                 }
+                int o = 0;
+                for(int i=0;i<Domain.nodesToAlgorithm.Count;i++)
+                {
+                    if(destination==Domain.nodesToAlgorithm[i])
+                    {
+                        o = i;
+                        break;
+                    }
+                }
+                int h = p[o];
+                List<LinkResourceManager> usedLrms = new List<LinkResourceManager>();
+                IPAddress ipprev=null;
+                while(true)
+                {
+                    Cable cable = findCableBetweenNodes(Domain.nodesToAlgorithm[o], Domain.nodesToAlgorithm[h], cables);
+                    usedCables.Add(cable);
+                    if(Domain.nodesToAlgorithm[o]==destination)
+                    {
+                        IPAddress ip = Domain.nodesToAlgorithm[h];
+                        ushort port = 0;
+                        if(destination==cable.Node1)
+                        {
+                            port = cable.port2;
+                        }
+                        if (destination == cable.Node2)
+                            port = cable.port1;
+
+                        LinkResourceManager link = findLRM(ip, port, links);
+                        usedLrms.Add(link);
+                        ipprev = ip;
+                    }
+                    else if(Domain.nodesToAlgorithm[o]==ipprev)
+                    {
+                        IPAddress ip = Domain.nodesToAlgorithm[h];
+                        ushort port = 0;
+                        if (ipprev == cable.Node1)
+                        {
+                            port = cable.port2;
+                        }
+                        if (ipprev == cable.Node2)
+                            port = cable.port1;
+
+                        LinkResourceManager link = findLRM(ip, port, links);
+                        usedLrms.Add(link);
+                        ipprev = ip;
+                    }
+
+                    o = h;
+                    h = p[o];
+                    if (h == -1)
+                    {
+                        Cable lastCable = findCableBetweenNodes(Domain.nodesToAlgorithm[o], Domain.nodesToAlgorithm[h], cables);
+                        usedCables.Add(lastCable);
+                        break;
+                    }
+                }
+                int sumOfLength = 0; // odtąd 
+                foreach (var used in usedCables)
+                {
+                    sumOfLength += used.length;
+                }
+                int modulation = 0;
+                if (sumOfLength >= 0 && sumOfLength <= 100) modulation = 64;
+                else if (sumOfLength > 100 && sumOfLength <= 200) modulation = 32;
+                else if (sumOfLength > 200 && sumOfLength <= 300) modulation = 16;
+                else if (sumOfLength > 300 && sumOfLength <= 400) modulation = 8;
+                else if (sumOfLength > 400 && sumOfLength <= 500) modulation = 4;
+                else if (sumOfLength > 500) modulation = 2;
+
+                double usedFrequency = ((requiredSpeed * 2) / (Math.Log(modulation, 2))) + 10; // 5 GHz przerwa z każdej strony
+
+                numOfSlots = (int)Math.Round(usedFrequency); //dotąd wszystko będzie w Dijkstrze
+                int counter = 0;
+                int start = 0;
+                int finish = 0;
+                bool flaga = false;
+                foreach(var lrm in usedLrms) /// jesli wyznaczymy najkrótszą ścieżkę i dany lrm nie będzie miał tyle szczelin to można go w następnej iteracji odrzucić,
+                // bo przy następnym dijkstrze wyjdzie ściezka dłuższa więc i możliwe że więcej szczelin będzie wymaganych to można go juz nie brać tego lrma pod uwagę
+                {
+                    for(int i=0; i<lrm.slots.Length;i++)
+                    {
+                        if (lrm.slots[i] == true)
+                            ++counter;
+                        if (counter == numOfSlots)
+                        {
+
+                        }
+                    }
+                }
+
+
+
+                return usedCables;
             }
 
+
+
+            public static Cable findCableBetweenNodes(IPAddress ip1,IPAddress ip2, List<Cable> cables)
+            {
+                Cable cable = null;
+                for(int i=0; i<cables.Count;i++)
+                {
+                    if((cables[i].Node1==ip1 && cables[i].Node2==ip2) || (cables[i].Node2 == ip1 && cables[i].Node1 == ip2))
+                    {
+                        cable = cables[i];
+                        break;
+                    }
+                }
+                return cable;
+            }
+            public static LinkResourceManager findLRM(IPAddress ip, ushort port, List<LinkResourceManager> links)
+            {
+                LinkResourceManager link = null;
+                foreach(var l in links)
+                {
+                    if (l.IPofNode==ip && l.port == port)
+                    {
+                        link = l;
+                        break;
+                    }
+                        
+                }
+                return link;
+            }
             private static void Send(Socket handler, String data)
             {
                 byte[] byteData = Encoding.ASCII.GetBytes(data);

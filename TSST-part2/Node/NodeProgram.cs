@@ -11,11 +11,11 @@ namespace Node
         private string nodeName { get; set; }
         private IPAddress ipAddress { get; set; }
         private IPAddress cloudIpAddress { get; set; }
-        private IPAddress managerIpAddress { get; set; }
+        private IPAddress DomainIpAddress { get; set; }
 
         static PackageHandler packageHandler;
 
-        private short managerPort;
+        private short DomainPort;
         private short cloudPort;
 
         NodeProgram()

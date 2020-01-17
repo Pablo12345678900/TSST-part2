@@ -62,7 +62,7 @@ namespace CableCloud
             {
 
 
-                cableCloud = Cloud.createCloud("DataForCloud.txt");
+                cableCloud = Cloud.createCloud("DataForCloud.txt"); // będą 2 chmury kablowe, po 1 w każdej domenie
 
             }
             catch (Exception e)
@@ -92,10 +92,7 @@ namespace CableCloud
             //Logs.Items.Add("Run Server2" + cableCloud.cloudIp + " " + cableCloud.cloudPort);
             try
             {
-                socketServer.Bind(new IPEndPoint(cableCloud.cloudIp, cableCloud.cloudPort)); //cloud is the server
-                
- 
-               
+                socketServer.Bind(new IPEndPoint(cableCloud.cloudIp, cableCloud.cloudPort)); //cloud is the server        
             }
             catch (Exception e)
             {

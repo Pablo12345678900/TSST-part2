@@ -21,8 +21,8 @@ namespace Host
         public int usedModulation { get; set; }
 
         public Socket socketToCloud;
-        public Socket socketToManager;
-        public List<LinkResourceManager> linkResources = new List<LinkResourceManager>();
+        public Socket socketToDomain;
+        ///public List<LinkResourceManager> linkResources = new List<LinkResourceManager>();
         public List<ushort> usedPorts = new List<ushort>();
         public Client()
         {

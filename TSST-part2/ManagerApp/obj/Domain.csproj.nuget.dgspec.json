@@ -1,7 +1,7 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\ManagerApp.csproj": {}
+    "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\Domain.csproj": {}
   },
   "projects": {
     "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\CableCloud\\CableCloud.csproj": {
@@ -63,12 +63,12 @@
         }
       }
     },
-    "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\ManagerApp.csproj": {
+    "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\ManagerApp.csproj",
-        "projectName": "ManagerApp",
-        "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\ManagerApp.csproj",
+        "projectUniqueName": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\Domain.csproj",
+        "projectName": "Domain",
+        "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\Domain.csproj",
         "packagesPath": "C:\\Users\\pawer\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\obj\\",
         "projectStyle": "PackageReference",
