@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj": {}
+    "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\Tools\\Tools.csproj": {}
   },
   "projects": {
-    "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj": {
+    "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\Tools\\Tools.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj",
+        "projectUniqueName": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\Tools\\Tools.csproj",
         "projectName": "Tools",
-        "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj",
-        "packagesPath": "C:\\Users\\pawer\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\obj\\",
+        "projectPath": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\Tools\\Tools.csproj",
+        "packagesPath": "C:\\Users\\M\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\Tools\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\pawer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\M\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [

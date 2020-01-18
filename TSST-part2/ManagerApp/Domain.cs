@@ -26,8 +26,7 @@ namespace DomainApp
         public Dictionary<Socket, IPAddress> IPfromSocket = new Dictionary<Socket, IPAddress>();
         public Dictionary<IPAddress, Socket> SocketfromIP = new Dictionary<IPAddress, Socket>();
 
-        public List<IPAddress> nodesToAlgorithm = new List<IPAddress>();
-        public List<LinkResourceManager> links = new List<LinkResourceManager>();
+
         public Domain()
         {
             RC = new RoutingController();

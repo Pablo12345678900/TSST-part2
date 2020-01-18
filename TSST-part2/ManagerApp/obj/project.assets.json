@@ -606,19 +606,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\pawer\\.nuget\\packages\\": {}
+    "C:\\Users\\M\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\DomainApp.csproj",
+      "projectUniqueName": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\ManagerApp\\DomainApp.csproj",
       "projectName": "DomainApp",
-      "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\DomainApp.csproj",
-      "packagesPath": "C:\\Users\\pawer\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\ManagerApp\\obj\\",
+      "projectPath": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\ManagerApp\\DomainApp.csproj",
+      "packagesPath": "C:\\Users\\M\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\ManagerApp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\pawer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\M\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -631,11 +631,11 @@
       "frameworks": {
         "netcoreapp3.0": {
           "projectReferences": {
-            "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\CableCloud\\CableCloud.csproj": {
-              "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\CableCloud\\CableCloud.csproj"
+            "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\CableCloud\\CableCloud.csproj": {
+              "projectPath": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\CableCloud\\CableCloud.csproj"
             },
-            "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj": {
-              "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj"
+            "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\Tools\\Tools.csproj": {
+              "projectPath": "C:\\Users\\M\\Desktop\\TSST-part2-master (2)\\TSST-part2-master\\TSST-part2\\Tools\\Tools.csproj"
             }
           }
         }
