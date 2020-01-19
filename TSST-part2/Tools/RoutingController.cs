@@ -282,13 +282,31 @@ namespace Tools
 
                 }
  
+                //compiling the result
                 for (int i = 0; i < ReversedPath.Count; i++)
                 {
                     result.Path.Add(ReversedPath[ReversedPath.Count - 1 - i]);
                 }
+
+                //choosing the slots to use
+                int[] result_slots = new int[10];
+
+                int temp_slots1 = 0;
+                bool reset1 = false;
+                int slot_index = -1;
                 for (int i = 0; i < 10; i++)
                 {
-                    if (slot_table[i] == 1)
+                    if (slot_table[i] == 1 && !reset1) { temp_slots1++; }
+                    if (slot_table[i] == 1 && reset1) { temp_slots1 = 1; reset1 = false; }
+                    if (slot_table[i] == 0) { reset1 = true; }
+
+                    if (temp_slots1 >= slots_required) { slot_index = i; }
+                }
+                if (slot_index < 0) { return result; }
+               
+                for (int i = 0; i < 10; i++)
+                {
+                    if (i>=slot_index-slots_required+1 && i<=slot_index)
                     {
                         result.slots[i] = true;
                     }
