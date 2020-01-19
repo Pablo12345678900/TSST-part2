@@ -13,9 +13,10 @@ namespace Host
         public IPAddress clientIP { get; set; }
         public string clientName { get; set; } // H1, H2 etc...
         public IPAddress cloudIP { get; set; }
+       // public ushort domainPort { get; set; }
 
         public IPAddress managementIP { get; set; }
-        public ushort managementPort { get; set; }
+        public ushort domainPort { get; set; }
         public ushort cloudPort { get; set; }
         public ushort portOut { get; set; }
         public int usedModulation { get; set; }
@@ -24,6 +25,7 @@ namespace Host
         public Socket socketToDomain;
         ///public List<LinkResourceManager> linkResources = new List<LinkResourceManager>();
         public List<ushort> usedPorts = new List<ushort>();
+        public List<LinkResourceManager> linkResources = new List<LinkResourceManager>();
         public Client()
         {
             Neighbours = new List<RestOfHosts>();
@@ -51,11 +53,11 @@ namespace Host
             line = streamReader.ReadLine();
             host.cloudPort = ushort.Parse(line.Split(' ')[1]);
 
-            line = streamReader.ReadLine();
-            host.managementIP = IPAddress.Parse(line.Split(' ')[1]);
+            /*line = streamReader.ReadLine();
+            host.managementIP = IPAddress.Parse(line.Split(' ')[1]);*/
 
             line = streamReader.ReadLine();
-            host.managementPort = ushort.Parse(line.Split(' ')[1]);
+            host.domainPort = ushort.Parse(line.Split(' ')[1]);
             RestOfHosts neighbour;
 
             while ((line = streamReader.ReadLine()) != null)

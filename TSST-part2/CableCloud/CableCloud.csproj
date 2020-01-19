@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="MainWindow.xaml.cs~RF8f3ddc.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Tools\Tools.csproj" />
   </ItemGroup>
 

@@ -1,0 +1,7 @@
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\bin\Debug\netcoreapp3.0\Tools.deps.json
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\bin\Debug\netcoreapp3.0\Tools.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\bin\Debug\netcoreapp3.0\Tools.pdb
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.AssemblyInfoInputs.cache
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.AssemblyInfo.cs
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.pdb

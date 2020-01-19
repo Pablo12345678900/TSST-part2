@@ -7,22 +7,6 @@ namespace Node
 {
     class NodeProgram
     {
-        
-        private string nodeName { get; set; }
-        private IPAddress ipAddress { get; set; }
-        private IPAddress cloudIpAddress { get; set; }
-        private IPAddress DomainIpAddress { get; set; }
-
-        static PackageHandler packageHandler;
-
-        private short DomainPort;
-        private short cloudPort;
-
-        NodeProgram()
-        {
-            packageHandler = new PackageHandler();
-        }
-        
             
         static void Main(string[] args)
         {

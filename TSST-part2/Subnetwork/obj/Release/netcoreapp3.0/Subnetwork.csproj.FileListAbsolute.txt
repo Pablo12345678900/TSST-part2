@@ -1,0 +1,14 @@
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Subnetwork.exe
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Subnetwork.deps.json
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Subnetwork.runtimeconfig.json
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Subnetwork.runtimeconfig.dev.json
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Subnetwork.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Subnetwork.pdb
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Tools.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\bin\Release\netcoreapp3.0\Tools.pdb
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\obj\Release\netcoreapp3.0\Subnetwork.csprojAssemblyReference.cache
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\obj\Release\netcoreapp3.0\Subnetwork.AssemblyInfoInputs.cache
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\obj\Release\netcoreapp3.0\Subnetwork.AssemblyInfo.cs
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\obj\Release\netcoreapp3.0\Subnetwork.csproj.CopyComplete
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\obj\Release\netcoreapp3.0\Subnetwork.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Subnetwork\obj\Release\netcoreapp3.0\Subnetwork.pdb

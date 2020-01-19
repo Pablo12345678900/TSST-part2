@@ -37,20 +37,20 @@ namespace CableCloud
         public const int BufferSize = 128;
 
         // Receive buffer.  
-        public byte[] buffer=new byte[BufferSize];
+        public byte[] buffer = new byte[BufferSize];
 
-// Received data string.  
+        // Received data string.  
         public StringBuilder sb = new StringBuilder();
     }
-    
-    
+
+
     public partial class MainWindow : Window
     {
-        public ManualResetEvent thread1=new ManualResetEvent(false);
+        public ManualResetEvent thread1 = new ManualResetEvent(false);
         public Cloud cableCloud { get; set; }
         public Socket socketServer { get; set; }
-        public Dictionary<Socket, IPAddress> SocketFromIP=new Dictionary<Socket, IPAddress>();
-        public Dictionary<IPAddress,Socket> IPFromSocket=new Dictionary<IPAddress, Socket>();
+        public Dictionary<Socket, IPAddress> SocketFromIP = new Dictionary<Socket, IPAddress>();
+        public Dictionary<IPAddress, Socket> IPFromSocket = new Dictionary<IPAddress, Socket>();
 
         public Dictionary<Socket, List<ushort>> usedPortsOfNode = new Dictionary<Socket, List<ushort>>();
         public Cable cable;
@@ -61,8 +61,7 @@ namespace CableCloud
             try
             {
 
-
-                cableCloud = Cloud.createCloud("DataForCloud.txt"); // będą 2 chmury kablowe, po 1 w każdej domenie
+                cableCloud = Cloud.createCloud("DataForCloud.txt");
 
             }
             catch (Exception e)
@@ -76,7 +75,7 @@ namespace CableCloud
 
         public void fillTheComboBox()
         {
-            foreach(var cable in cableCloud.cables)
+            foreach (var cable in cableCloud.cables)
             {
                 Cables.Items.Add(cable);
             }
@@ -87,8 +86,8 @@ namespace CableCloud
             // cloud is waiting for events            
 
             socketServer = new Socket(cableCloud.cloudIp.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            
-            
+
+
             //Logs.Items.Add("Run Server2" + cableCloud.cloudIp + " " + cableCloud.cloudPort);
             try
             {
@@ -106,7 +105,7 @@ namespace CableCloud
                 socketServer.BeginAccept(new AsyncCallback(AcceptCallBack), socketServer);
                 thread1.WaitOne();
             }
-            
+
         }
 
 
@@ -114,72 +113,74 @@ namespace CableCloud
         public void AcceptCallBack(IAsyncResult asyncResult)
         {
             thread1.Set();
-            Socket listener = (Socket) asyncResult.AsyncState;
+            Socket listener = (Socket)asyncResult.AsyncState;
             Socket handler = listener.EndAccept(asyncResult);
-            StateObject stateObject=new StateObject();
+            StateObject stateObject = new StateObject();
             stateObject.workSocket = handler;
-            
-            handler.BeginReceive(stateObject.buffer,0, stateObject.buffer.Length,SocketFlags.None,new AsyncCallback(ReceiveCallBack), stateObject );
-            
+
+            handler.BeginReceive(stateObject.buffer, 0, stateObject.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), stateObject);
+
         }
 
         public void ReceiveCallBack(IAsyncResult asyncResult)
         {
-           StateObject state = (StateObject) asyncResult.AsyncState;
-           Socket handler = state.workSocket; //socket of client
-           int ReadBytes;
-           try
-           {
-                ReadBytes=handler.EndReceive(asyncResult);
+            StateObject state = (StateObject)asyncResult.AsyncState;
+            Socket handler = state.workSocket; //socket of client
+            int ReadBytes;
+            try
+            {
+                ReadBytes = handler.EndReceive(asyncResult);
 
-           }
-           catch (Exception e)
-           {
-               Console.WriteLine(e);
-               throw;
-           }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
-           state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, ReadBytes));
-           var message = state.sb.ToString().Split(' ');
-           // first message must be send to get information about connected socket: First Message <Ip address>
-           if (message[0].Equals("First") && message[1].Equals("Message"))
-           {
-               IPAddress node=IPAddress.Parse(message[2]);
-               SocketFromIP.TryAdd(handler, node);
-               IPFromSocket.TryAdd(node, handler);
+            state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, ReadBytes));
+            var message = state.sb.ToString().Split(' ');
+            // first message must be send to get information about connected socket: First Message <Ip address>
+            if (message[0].Equals("First") && message[1].Equals("Message"))
+            {
+                IPAddress node = IPAddress.Parse(message[2]);
+                SocketFromIP.TryAdd(handler, node);
+                IPFromSocket.TryAdd(node, handler);
+
                 List<ushort> ports = new List<ushort>();
-                foreach(var cab in cableCloud.cables)
+                foreach (var cab in cableCloud.cables)
                 {
 
-                    if(cab.Node1==node)
+                    if (cab.Node1 == node)
                     {
                         ports.Add(cab.port1);
                     }
-                    if(cab.Node2==node)
+                    if (cab.Node2 == node)
                     {
                         ports.Add(cab.port2);
                     }
                 }
                 usedPortsOfNode.Add(handler, ports);
-                handler.BeginSend(giveArrayInBytes(ports),0, giveArrayInBytes(ports).Length,0, new AsyncCallback(SendCallBack), handler);
+                handler.BeginSend(giveArrayInBytes(ports), 0, giveArrayInBytes(ports).Length, 0, new AsyncCallback(SendCallBack), handler);
+
                 Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
-                                              CultureInfo.InvariantCulture) + "] "  + node.ToString()+ " called in"));
-           }
-           else
-           {
+                                              CultureInfo.InvariantCulture) + "] " + node.ToString() + " called in"));
+            }
+            else
+            {
                 DataStream dataStream = DataStream.toData(state.buffer);
                 Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
-                                              CultureInfo.InvariantCulture) + "] "+ "I received package from " + dataStream.currentNode +":"+dataStream.currentPort + "ID and payload" + " "+ dataStream.payload));
+                                              CultureInfo.InvariantCulture) + "] " + "I received package from " + dataStream.currentNode + ":" + dataStream.currentPort + "ID and payload" + " " + dataStream.payload));
                 ForwardPackage(state, handler, asyncResult, dataStream);
-           }
+            }
 
-           state.sb.Clear();
-           handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
+            state.sb.Clear();
+            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
         }
-        public  byte[] giveArrayInBytes(List<ushort> ports)
+        public byte[] giveArrayInBytes(List<ushort> ports)
         {
             List<byte> buffer = new List<byte>();
-            foreach(var port in ports)
+            foreach (var port in ports)
             {
                 buffer.AddRange(BitConverter.GetBytes(port));
             }
@@ -188,15 +189,15 @@ namespace CableCloud
 
         public void ForwardPackage(StateObject stateObject, Socket handler, IAsyncResult asyncResult, DataStream dataStream)
         {
-            
-            
+
+
             //Package recPackage=Package.returnToPackage(stateObject.buffer);
             IPAddress node1 = SocketFromIP[handler];
             ushort port1 = dataStream.currentPort;
             //Console.WriteLine(node1.ToString() + " " +port1.ToString());
             for (int i = 0; i < cableCloud.cables.Count; i++)
             {
-                if ((cableCloud.cables[i].Node1.Equals(node1) && cableCloud.cables[i].port1.Equals(port1)) && cableCloud.cables[i].stateOfCable==false)
+                if ((cableCloud.cables[i].Node1.Equals(node1) && cableCloud.cables[i].port1.Equals(port1)) && cableCloud.cables[i].stateOfCable == false)
                 {
                     Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "Cable is destroyed, package discarded"));
@@ -211,7 +212,7 @@ namespace CableCloud
                     break;
                 }
 
-                if ((cableCloud.cables[i].Node1.Equals(node1) &&  cableCloud.cables[i].port1.Equals(port1)) && cableCloud.cables[i].stateOfCable)
+                if ((cableCloud.cables[i].Node1.Equals(node1) && cableCloud.cables[i].port1.Equals(port1)) && cableCloud.cables[i].stateOfCable)
                 {
 
                     dataStream.currentNode = cableCloud.cables[i].Node2;
@@ -220,13 +221,13 @@ namespace CableCloud
                     socket.BeginSend(dataStream.toBytes(), 0, dataStream.toBytes().Length, 0,
                         new AsyncCallback(SendCallBack), socket);
                     Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
-                                             CultureInfo.InvariantCulture) + "] " + "I sent message: ID-> " +"payload: " + dataStream.payload + " to: " +   dataStream.currentNode + " on port: " + dataStream.currentPort));
+                                             CultureInfo.InvariantCulture) + "] " + "I sent message: ID-> " + "payload: " + dataStream.payload + " to: " + dataStream.currentNode + " on port: " + dataStream.currentPort));
                     break;
 
 
                 }
 
-                if ( (cableCloud.cables[i].Node2.Equals(node1) &&   cableCloud.cables[i].port2.Equals(port1)) && cableCloud.cables[i].stateOfCable)
+                if ((cableCloud.cables[i].Node2.Equals(node1) && cableCloud.cables[i].port2.Equals(port1)) && cableCloud.cables[i].stateOfCable)
                 {
                     dataStream.currentNode = cableCloud.cables[i].Node1;
                     dataStream.currentPort = cableCloud.cables[i].port1;
@@ -234,7 +235,7 @@ namespace CableCloud
                     socket.BeginSend(dataStream.toBytes(), 0, dataStream.toBytes().Length, 0,
                         new AsyncCallback(SendCallBack), socket);
                     Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
-                                             CultureInfo.InvariantCulture) + "] " + "I sent message: ID-> " + "payload: " + dataStream.payload + " to: " + dataStream.currentNode+" on port: " + dataStream.currentPort)); 
+                                             CultureInfo.InvariantCulture) + "] " + "I sent message: ID-> " + "payload: " + dataStream.payload + " to: " + dataStream.currentNode + " on port: " + dataStream.currentPort));
                     break;
                 }
             }
@@ -274,8 +275,8 @@ namespace CableCloud
             unableButton();
         }
     }
-    
+
 }
 
-    
+
 

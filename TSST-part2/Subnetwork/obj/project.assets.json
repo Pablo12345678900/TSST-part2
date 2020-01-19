@@ -1,0 +1,88 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETCoreApp,Version=v3.0": {
+      "Tools/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.0",
+        "compile": {
+          "bin/placeholder/Tools.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Tools.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Tools/1.0.0": {
+      "type": "project",
+      "path": "../Tools/Tools.csproj",
+      "msbuildProject": "../Tools/Tools.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETCoreApp,Version=v3.0": [
+      "Tools >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\pawer\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Subnetwork\\Subnetwork.csproj",
+      "projectName": "Subnetwork",
+      "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Subnetwork\\Subnetwork.csproj",
+      "packagesPath": "C:\\Users\\pawer\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Subnetwork\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\pawer\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "netcoreapp3.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "netcoreapp3.0": {
+          "projectReferences": {
+            "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj": {
+              "projectPath": "C:\\Users\\pawer\\Desktop\\TSST-part2\\TSST-part2\\TSST-part2\\Tools\\Tools.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netcoreapp3.0": {
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

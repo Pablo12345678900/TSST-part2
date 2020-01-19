@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using Tools;
 using System.Xml.Serialization;
-using DomainApp;
+//using DomainApp;
 using System.Globalization;
 
 
@@ -21,7 +21,7 @@ namespace Node
 
         public Socket SocketToForward { get; set; }
         public Socket SocketToDomain { get; set; }
-        public ushort Port { get; set; }
+      //  public ushort Port { get; set; }
         
         public IPAddress cloudIp { get; set; }
         public ushort cloudPort { get; set; }
@@ -35,11 +35,11 @@ namespace Node
 
         public List<LinkResourceManager> linkResources=new List<LinkResourceManager>();// traktujemy router jako podsieć dla ułatwienia dlatego dany router ma kilka LRM
         PackageHandler packageHandler=new PackageHandler();
-        public Routing(string n, IPAddress ip, ushort P)
+        public Routing(string n, IPAddress ip)
         {
             Name = n;
             IpAddress = ip;
-            Port = P;
+           // Port = P;
         }
 
         public static Routing createRouter(string conFile)
@@ -48,8 +48,8 @@ namespace Node
             string line = streamReader.ReadLine();
             string name = line.Split(' ')[0];
             IPAddress ipAddress = IPAddress.Parse(line.Split(' ')[1]);
-            ushort Port = ushort.Parse(line.Split(' ')[2]);
-            Routing routing=new Routing(name, ipAddress,Port);
+           // ushort Port = ushort.Parse(line.Split(' ')[2]);
+            Routing routing=new Routing(name, ipAddress);
 
             line = streamReader.ReadLine();
             routing.cloudIp = IPAddress.Parse(line.Split(' ')[0]);
@@ -74,7 +74,7 @@ namespace Node
             SocketToForward.Connect(new IPEndPoint(cloudIp,cloudPort)); // connection with cloud
             Console.WriteLine(this.Name + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             System.Globalization.CultureInfo.InvariantCulture) + "] " + "Connected with cloud :)");
-            SocketToForward.Send(Encoding.ASCII.GetBytes("First Message " + this.IpAddress.ToString()));
+            SocketToForward.Send(Encoding.ASCII.GetBytes("First Message " + this.IpAddress.ToString() + " Router"));
             byte[] buffer1 = new byte[256];
             
             SocketToForward.Receive(buffer1);//node has to know about used ports

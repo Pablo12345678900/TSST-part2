@@ -85,16 +85,14 @@ namespace Host
                 Dispatcher.Invoke(() => ListBox12.Items.Add(client.clientName + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with cable cloud"));
                 client.socketToCloud.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString())); // zgłasza się do chmury
-                byte[] buffer = new byte[256];
-                client.socketToCloud.Receive(buffer);// chmura odsyła danemu node'owi których portów będzie używać i tam tworzy LRM'y
-                client.usedPorts = givePorts(buffer);
-               /* for (int i = 0; i < client.usedPorts.ToArray().Length; i++)
+                
+                for (int i = 0; i < client.usedPorts.ToArray().Length; i++)
                 {
                     ushort port = client.usedPorts[i];
                     LinkResourceManager link = new LinkResourceManager(port);
                     link.IPofNode = client.clientIP;
                     client.linkResources.Add(link); // adding LRMs
-                }*/
+                }
 
             }
             catch (SocketException e)
@@ -105,30 +103,26 @@ namespace Host
 
             Task.Run(ConnectWithDomain); // CPCC łączy się z domeną
         }
-        public List<ushort> givePorts(byte[] bytes) // zwróc z bajtów numery portów
-        {
-            List<ushort> list = new List<ushort>();
-            for (int i = 0; i < bytes.Length; i = i + 2)
-            {
-                ushort port = (ushort)((bytes[i + 1] << 8) + bytes[i]);
-                list.Add(port);
-             }
-            return list;
-        }
+        
         public void ConnectWithDomain()
         {
             try
             {
 
                 client.socketToDomain = new Socket(client.cloudIP.AddressFamily, SocketType.Stream, ProtocolType.Tcp); // Stream uses TCP protocol
-                client.socketToDomain.Connect(new IPEndPoint(client.cloudIP, client.cloudPort)); //connect with server
+                client.socketToDomain.Connect(new IPEndPoint(client.cloudIP, client.domainPort)); //connect with server
                 Dispatcher.Invoke(() => ListBox12.Items.Add("This is " + client.clientName));
                 Dispatcher.Invoke(() => ListBox12.Items.Add(client.clientName + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with management system"));
-                
-                
+
+                List<byte> bufferLRM = new List<byte>();
+                bufferLRM.AddRange(Encoding.ASCII.GetBytes("CC-callin " + client.clientIP.ToString() + " "));
+                foreach(LinkResourceManager lrm in client.linkResources)
+                {
+                    bufferLRM.AddRange(lrm.convertToBytes());
+                }
                
-              //  client.socketToDomain.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString())); // zgłasza się  do Domaina
+                client.socketToDomain.Send(bufferLRM.ToArray()); // zgłasza się  do Domaina
 
             }
             catch (SocketException e)

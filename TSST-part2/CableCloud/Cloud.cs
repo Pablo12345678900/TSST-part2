@@ -30,7 +30,7 @@ namespace CableCloud
             line = streamReader.ReadLine();
             int port = int.Parse(line.Split(' ')[1]);
             Cloud cloud = new Cloud(address, port);
-            Console.WriteLine("Wczytalo cos");
+            //Console.WriteLine("Wczytalo cos");
             while ((line = streamReader.ReadLine()) != null)
             {
                 IPAddress ip1 = IPAddress.Parse(line.Split(' ')[1]);
@@ -40,7 +40,9 @@ namespace CableCloud
                 IPAddress ip2 = IPAddress.Parse(line.Split(' ')[1]);
                 line = streamReader.ReadLine();
                 ushort port2 = ushort.Parse(line.Split(' ')[1]);
-                Cable cable = new Cable(ip1, ip2, port1, port2);
+                line = streamReader.ReadLine();
+                int len = int.Parse(line.Split(' ')[1]);
+                Cable cable = new Cable(ip1, ip2, port1, port2,len);
                 cloud.cables.Add(cable);
             }
           

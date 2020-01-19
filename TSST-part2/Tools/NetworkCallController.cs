@@ -58,13 +58,13 @@ namespace Tools
                 if (line.Split(' ')[0].Equals(host1))
                 {
                     info1 = line.Split(' ')[1];
-                    if(info1.Equals("OK"))
+                    if(info1.Equals("ok"))
                      flaga1 = true;
                 }
                 if (line.Split(' ')[0].Equals(host2))
                 {
                     info2 = line.Split(' ')[1];
-                    if(info2.Equals("OK"))
+                    if(info2.Equals("ok"))
                         flaga2 = true;
                 }
             }

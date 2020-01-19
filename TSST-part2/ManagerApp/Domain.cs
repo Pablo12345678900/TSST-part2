@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.IO;
 using Tools;
 using System.Threading;
+using Subnetwork;
 
 namespace DomainApp
 {
@@ -17,10 +18,13 @@ namespace DomainApp
         public NetworkCallController NCC { get; set; }
 
         public ManualResetEvent domainDone = new ManualResetEvent(false);
-
+        public Subnet subnetwork { get; set; }
+        
         public Socket domainServer { get; set; }
         public Socket domainClient { get; set; }
         public ushort port { get; set; }
+
+        public ushort secondDomainPort { get; set; }
         
 
         public Dictionary<Socket, IPAddress> IPfromSocket = new Dictionary<Socket, IPAddress>();
@@ -35,19 +39,22 @@ namespace DomainApp
             NCC = new NetworkCallController("directory.txt", "policy.txt");
             IPAddress myhost = IPAddress.Parse("127.0.0.1");
             domainServer = new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            domainServer.Bind(new IPEndPoint(myhost, port));
+           
             domainClient= new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
         }
-        public static Domain readInfo(String conFile)
+        public void readinfo(String conFile)
         {
             string line;
             StreamReader streamReader = new StreamReader(conFile);
             List<Cable> readCables = new List<Cable>(); //RC musi znać kable
 
-            Domain Domain = new Domain();
+            //RoutingController RC = new RoutingController();
             line = streamReader.ReadLine();
-            Domain.port = ushort.Parse(line.Split(' ')[1]);
+            port = ushort.Parse(line.Split(' ')[1]);
+            line = streamReader.ReadLine();
+            secondDomainPort = ushort.Parse(line.Split(' ')[1]);
+            //Domain.port = ushort.Parse(line.Split(' ')[1]);
             while ((line = streamReader.ReadLine()) != null)
             {
                 IPAddress ip1 = IPAddress.Parse(line.Split(' ')[1]);
@@ -59,11 +66,12 @@ namespace DomainApp
                 ushort port2 = ushort.Parse(line.Split(' ')[1]);
                 line = streamReader.ReadLine();
                 int len = int.Parse(line.Split(' ')[1]);
-                Cable cable = new Cable(ip1, ip2, port1, port2,len);
+                Cable cable = new Cable(ip1, ip2, port1, port2, len);
                 readCables.Add(cable);
             }
-            Domain.cables = readCables;
-            return Domain;
+            RC.cables = readCables;
+            //return RC;
         }
+
     }
 }

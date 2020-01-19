@@ -36,8 +36,8 @@ namespace Tools
             return bytes.ToArray();
         }
         public static LinkResourceManager returnLRM(byte[] bytes) // 16 bajtów=1 LRM
-
         {
+
             LinkResourceManager link = new LinkResourceManager();
             link.port = (ushort)((bytes[1] << 8) + bytes[0]);
             for(int i=0;i<10;i++)
