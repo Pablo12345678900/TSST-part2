@@ -1,7 +1,3 @@
-C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.csprojAssemblyReference.cache
-C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.AssemblyInfoInputs.cache
-C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.AssemblyInfo.cs
-C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\CableCloud.exe
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\Subnetwork.exe
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\ManagerApp.exe
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\ManagerApp.deps.json
@@ -9,12 +5,13 @@ C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\n
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\ManagerApp.runtimeconfig.dev.json
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\ManagerApp.dll
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\ManagerApp.pdb
-C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\CableCloud.dll
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\Subnetwork.dll
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\Tools.dll
-C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\CableCloud.pdb
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\Subnetwork.pdb
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\bin\Release\netcoreapp3.0\Tools.pdb
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.csprojAssemblyReference.cache
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.AssemblyInfoInputs.cache
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.AssemblyInfo.cs
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.csproj.CopyComplete
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.dll
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\ManagerApp\obj\Release\netcoreapp3.0\ManagerApp.pdb

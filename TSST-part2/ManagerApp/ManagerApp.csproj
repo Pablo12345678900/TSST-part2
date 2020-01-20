@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CableCloud\CableCloud.csproj" />
     <ProjectReference Include="..\Subnetwork\Subnetwork.csproj" />
     <ProjectReference Include="..\Tools\Tools.csproj" />
   </ItemGroup>

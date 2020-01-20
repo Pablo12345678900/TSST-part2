@@ -31,13 +31,14 @@ namespace Subnetwork
             {
 
             }
+            subnetwork.subClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.portDomain));
+
+            subnetwork.subClient.Send(Encoding.ASCII.GetBytes("SUBNETWORK-callin " + subnetwork.ip.ToString()));
             subnetwork.subServer.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.port));
             subnetwork.subClient = new Socket(IPAddress.Parse("127.0.0.1").AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             subnetwork.subServer.Listen(50);
             Console.WriteLine((int)subnetwork.portDomain + " " + (int)subnetwork.port);
-            subnetwork.subClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"),(int)subnetwork.portDomain));
             
-            subnetwork.subClient.Send(Encoding.ASCII.GetBytes("SUBNETWORK-callin " + subnetwork.ip));
             while(true)
             {
                 subnetwork.subDone.Reset();
@@ -73,6 +74,10 @@ namespace Subnetwork
             }
             state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, ReadBytes));
             var message = state.sb.ToString().Split(' ');
+            if(message[0].Equals("CC-callin"))
+            {
+                Console.WriteLine("Connected to subnetwork: " + IPAddress.Parse(message[1]));
+            }
         }
         }
 }

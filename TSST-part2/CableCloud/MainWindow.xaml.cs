@@ -57,11 +57,14 @@ namespace CableCloud
         public MainWindow()
         {
             var args = Environment.GetCommandLineArgs();
-            InitializeComponent();
+            
+           
             try
             {
 
+                InitializeComponent();
                 cableCloud = Cloud.createCloud("DataForCloud.txt");
+
 
             }
             catch (Exception e)
@@ -69,7 +72,7 @@ namespace CableCloud
                 Console.WriteLine("Failure, wrong arguments");
                 Environment.Exit(1);
             }
-            fillTheComboBox();
+           fillTheComboBox();
             Task.Run(RunCloudServer);
         }
 
@@ -151,16 +154,17 @@ namespace CableCloud
                 foreach (var cab in cableCloud.cables)
                 {
 
-                    if (cab.Node1 == node)
+                    if (cab.Node1.Equals(node))
                     {
                         ports.Add(cab.port1);
                     }
-                    if (cab.Node2 == node)
+                    if (cab.Node2.Equals(node))
                     {
                         ports.Add(cab.port2);
                     }
                 }
                 usedPortsOfNode.Add(handler, ports);
+                Dispatcher.Invoke(() => Logs.Items.Add(giveArrayInBytes(ports).Length + " " +ports.Count));
                 handler.BeginSend(giveArrayInBytes(ports), 0, giveArrayInBytes(ports).Length, 0, new AsyncCallback(SendCallBack), handler);
 
                 Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
@@ -256,7 +260,7 @@ namespace CableCloud
         private void Destroy_Click(object sender, RoutedEventArgs e)
         {
 
-            //cable = (Cable)Cables.SelectedItem;
+            cable = (Cable)Cables.SelectedItem;
             cable.stateOfCable = false;
             Cables.SelectedItem = null;
             unableButton();
@@ -265,7 +269,7 @@ namespace CableCloud
         private void Cables_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             cable = (Cable)Cables.SelectedItem;
-            unableButton();
+           unableButton();
         }
 
         private void Repair_Click(object sender, RoutedEventArgs e)

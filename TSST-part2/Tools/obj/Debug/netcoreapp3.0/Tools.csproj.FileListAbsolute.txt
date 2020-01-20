@@ -5,3 +5,4 @@ C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcorea
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.AssemblyInfo.cs
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.dll
 C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.pdb
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\Tools\obj\Debug\netcoreapp3.0\Tools.csprojAssemblyReference.cache

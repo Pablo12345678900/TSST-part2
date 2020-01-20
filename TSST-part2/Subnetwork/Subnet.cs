@@ -28,7 +28,7 @@ namespace Subnetwork
             RC = new RoutingController();
           
             subServer = new Socket(IPAddress.Parse("127.0.0.1").AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            
+            subClient= new Socket(IPAddress.Parse("127.0.0.1").AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             //subServer.Bind(new IPEndPoint(iplocal, (int)port));
 
         }

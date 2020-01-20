@@ -1,9 +1,106 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
     <e p="C:\Users\pawer\.Rider2019.2\system\extResources" t="IncludeRecursive" />
     <e p="C:\Users\pawer\.Rider2019.2\system\resharper-host\local\Transient\ReSharperHost\v192\SolutionCaches\_TSST-part2.1367425460.00" t="ExcludeRecursive" />
     <e p="C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2" t="IncludeFlat">
+      <e p="CableCloud" t="IncludeRecursive">
+        <e p="App.xaml" t="Include" />
+        <e p="App.xaml.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="CableCloud.csproj" t="IncludeRecursive" />
+        <e p="Cloud.cs" t="Include" />
+        <e p="DataForCloud.txt" t="Include" />
+        <e p="MainWindow.xaml" t="Include" />
+        <e p="MainWindow.xaml.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="CableCloud.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="Host" t="IncludeRecursive">
+        <e p="App.xaml" t="Include" />
+        <e p="App.xaml.cs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Client.cs" t="Include" />
+        <e p="Host.csproj" t="IncludeRecursive" />
+        <e p="MainWindow.xaml" t="Include" />
+        <e p="MainWindow.xaml.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="Host.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="RestOfHosts.cs" t="Include" />
+      </e>
+      <e p="ManagerApp" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="directory.txt" t="Include" />
+        <e p="Domain.cs" t="Include" />
+        <e p="Domain1.txt" t="Include" />
+        <e p="ManagerApp.csproj" t="IncludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="ManagerApp.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="policy.txt" t="Include" />
+        <e p="Program.cs" t="Include" />
+        <e p="Router_entry.cs" t="Include" />
+      </e>
+      <e p="Node" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Node.csproj" t="IncludeRecursive" />
+        <e p="NodeProgram.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="Node.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="PackageHandler.cs" t="Include" />
+        <e p="Routing.cs" t="Include" />
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Subnetwork" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="Subnetwork.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Program.cs" t="Include" />
+        <e p="Subnet.cs" t="Include" />
+        <e p="Subnetwork.csproj" t="IncludeRecursive" />
+      </e>
+      <e p="Tools" t="IncludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="Cable.cs" t="Include" />
+        <e p="ConnectionController.cs" t="Include" />
+        <e p="DataStream.cs" t="Include" />
+        <e p="LinkResourceManager.cs" t="Include" />
+        <e p="NetworkCallController.cs" t="Include" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="Tools.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Optical_Entry.cs" t="Include" />
+        <e p="RoutingController.cs" t="Include" />
+        <e p="Tools.csproj" t="IncludeRecursive" />
+      </e>
       <e p="TSST-part2.sln" t="IncludeFlat" />
     </e>
   </component>

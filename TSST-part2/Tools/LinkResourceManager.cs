@@ -21,7 +21,7 @@ namespace Tools
         }
         public LinkResourceManager()
         {
-
+            slots = new bool[10];
         }
 
         public byte[] convertToBytes()
@@ -39,12 +39,15 @@ namespace Tools
         {
 
             LinkResourceManager link = new LinkResourceManager();
-            link.port = (ushort)((bytes[1] << 8) + bytes[0]);
+            link.port = (ushort)((bytes[1] << 8) | bytes[0]);
+            Console.WriteLine(link.port);
             for(int i=0;i<10;i++)
             {
                 link.slots[i] = BitConverter.ToBoolean(bytes, i+2);
+                Console.WriteLine(link.slots[i]);
             }
             link.IPofNode= new IPAddress(new byte[] { bytes[12], bytes[13], bytes[14], bytes[15] });
+            Console.WriteLine(link.IPofNode);
             return link;
         }
    }

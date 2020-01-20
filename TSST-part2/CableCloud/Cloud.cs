@@ -27,6 +27,7 @@ namespace CableCloud
             StreamReader streamReader = new StreamReader(conFile);
             line = streamReader.ReadLine();
             IPAddress address = IPAddress.Parse(line.Split(' ')[1]);
+            Console.WriteLine(address.ToString());
             line = streamReader.ReadLine();
             int port = int.Parse(line.Split(' ')[1]);
             Cloud cloud = new Cloud(address, port);
@@ -34,6 +35,7 @@ namespace CableCloud
             while ((line = streamReader.ReadLine()) != null)
             {
                 IPAddress ip1 = IPAddress.Parse(line.Split(' ')[1]);
+                Console.WriteLine(ip1.ToString());
                 line = streamReader.ReadLine();
                 ushort port1 = ushort.Parse(line.Split(' ')[1]);
                 line = streamReader.ReadLine();

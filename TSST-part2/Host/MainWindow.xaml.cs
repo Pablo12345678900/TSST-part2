@@ -80,15 +80,24 @@ namespace Host
             {
 
                 client.socketToCloud = new Socket(client.cloudIP.AddressFamily, SocketType.Stream, ProtocolType.Tcp); // Stream uses TCP protocol
+                Dispatcher.Invoke(() => ListBox12.Items.Add("This is " + client.clientName));
                 client.socketToCloud.Connect(new IPEndPoint(client.cloudIP, client.cloudPort)); //connect with server
                 Dispatcher.Invoke(() => ListBox12.Items.Add("This is " + client.clientName));
                 Dispatcher.Invoke(() => ListBox12.Items.Add(client.clientName + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with cable cloud"));
                 client.socketToCloud.Send(Encoding.ASCII.GetBytes("First Message " + client.clientIP.ToString())); // zgłasza się do chmury
-                
+                byte[] buffer1 = new byte[256];
+
+                client.socketToCloud.Receive(buffer1);//node has to know about used ports
+                client.usedPorts = givePorts(buffer1);
+                Dispatcher.Invoke(() => ListBox12.Items.Add("Received"));
+
+
                 for (int i = 0; i < client.usedPorts.ToArray().Length; i++)
                 {
                     ushort port = client.usedPorts[i];
+                    
+                    Dispatcher.Invoke(() => ListBox12.Items.Add(port));
                     LinkResourceManager link = new LinkResourceManager(port);
                     link.IPofNode = client.clientIP;
                     client.linkResources.Add(link); // adding LRMs
@@ -103,7 +112,18 @@ namespace Host
 
             Task.Run(ConnectWithDomain); // CPCC łączy się z domeną
         }
-        
+        public List<ushort> givePorts(byte[] bytes) // change from bytes to port number
+        {
+            List<ushort> list = new List<ushort>();
+            for (int i = 0; i < bytes.Length; i = i + 2)
+            {
+                ushort port = (ushort)((bytes[i + 1] << 8) + bytes[i]);
+                if (port.Equals(0))
+                    break;
+                list.Add(port);
+            }
+            return list;
+        }
         public void ConnectWithDomain()
         {
             try
@@ -138,7 +158,7 @@ namespace Host
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
             byte[] buffer = new byte[16];
-            client.socketToDomain.Send(Encoding.ASCII.GetBytes("NCC-GET " +client.clientIP.ToString() + " " + destination.ip.ToString() + " 10")); //callRequest(adres A, adres B, speed)
+            client.socketToDomain.Send(Encoding.ASCII.GetBytes("NCC-GET " +client.clientName + " " + destination.Name + " 10")); //callRequest(adres A, adres B, speed)
             //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej, wysyła to callRequest że chce taką przepustowość do takiego hosta
             client.socketToDomain.Receive(buffer); // odpowiedź od Domaina
             

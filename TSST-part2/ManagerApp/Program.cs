@@ -9,7 +9,6 @@ using System.Xml.Serialization;
 using System.Linq;
 using Tools;
 using System.Globalization;
-using CableCloud;
 /// <summary>
 /// 
 /// </summary>
@@ -135,11 +134,13 @@ namespace DomainApp
                 domain.RC.nodesToAlgorithm.Add(IPAddress.Parse(message[1]));
                 List<byte> bufferLRM = new List<byte>();
                 bufferLRM.AddRange(Encoding.ASCII.GetBytes(message[2]));
+                Console.WriteLine(bufferLRM.Count);
                 int i = 0;
-                while(i<=bufferLRM.Count)
+                while(i<bufferLRM.Count)
                 {
                     LinkResourceManager LRM = LinkResourceManager.returnLRM(bufferLRM.GetRange(i,16).ToArray());
                     i += 16;
+                    Console.WriteLine("Port: " +LRM.port);
                     domain.RC.lrms.Add(LRM);
                 }
                 
@@ -154,7 +155,7 @@ namespace DomainApp
                 buffer.AddRange(Encoding.ASCII.GetBytes("RC-SecondDomainTopology " + ipBorderNode.GetAddressBytes() + " " +BitConverter.GetBytes(portBorderNode)));
                 domain.domainClient.Send(buffer.ToArray());
             }
-            if(message[0].Equals("SUBNETWORK - callin"))
+            if(message[0].Equals("SUBNETWORK-callin"))
             {
                 domain.CC.IPfromSocket.Add(handler, IPAddress.Parse(message[1]));
                 domain.CC.SocketfromIP.Add(IPAddress.Parse(message[1]), handler);

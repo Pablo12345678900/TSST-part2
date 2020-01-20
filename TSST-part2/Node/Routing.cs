@@ -98,9 +98,9 @@ namespace Node
             byte[] buffer = new byte[4096];
             Console.WriteLine(this.Name + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "Connected with Domain :)");
-            byte[] msg = Encoding.ASCII.GetBytes(Name);
+            //byte[] msg = Encoding.ASCII.GetBytes(Name);
 
-            int bytesSent = SocketToDomain.Send(msg);
+           // int bytesSent = SocketToDomain.Send(msg);
 
             Thread forwardingThread=new Thread(WaitForPackage);
             Thread managementThread=new Thread(WaitForCommands);
@@ -114,6 +114,9 @@ namespace Node
             for (int i = 0; i < bytes.Length; i = i + 2)
             {
                 ushort port = (ushort)((bytes[i + 1] << 8) + bytes[i]);
+                if (port == 0)
+                    break;
+                Console.WriteLine(port);
                 list.Add(port);
             }
             return list;
