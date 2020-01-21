@@ -16,6 +16,10 @@ namespace Tools
         //public int capacity { get; set; }
         public bool stateOfCable { get; set; } 
         public int length { get; set; }
+        public Cable()
+        {
+
+        }
         public Cable(IPAddress n1, IPAddress n2, ushort p1, ushort p2, int length)
         {
             Node1 = n1;

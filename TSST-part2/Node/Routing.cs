@@ -179,24 +179,33 @@ namespace Node
                 // Domain będzie aktualizował te optical entry
                 
                 SocketToDomain.Receive(bufferForManagement);// from CC in management we have to check whether it is possible to take requested capacity
-                Optical_Entry opticalEntry = packageHandler.FromBytesToEntry(bufferForManagement); // 
-                int k = 0;
-               for(int i=0; i< this.linkResources.Count;i++)
+                Optical_Entry opticalEntry=null;
+                if (bufferForManagement.ToList().GetRange(0,3).Equals(Encoding.ASCII.GetBytes("ACK")))
                 {
-                    if (opticalEntry.outPort == this.linkResources[i].port)
+                   opticalEntry = packageHandler.FromBytesToEntry(bufferForManagement.ToList().GetRange(3,12).ToArray());
+                    packageHandler.Optical_Table.Add(opticalEntry);
+
+                }
+                //Optical_Entry opticalEntry = packageHandler.FromBytesToEntry(bufferForManagement); // 
+                int k = 0;
+                
+                
+                    foreach(var link in linkResources)
                     {
-                        k = i;
+                    if (link.port == opticalEntry.outPort)
+                    {
+                        for (uint j = opticalEntry.startSlot; j <= opticalEntry.lastSlot; j++)
+                        {
+                            link.slots[j] = false;
+                        }
                         break;
                     }
-                }
+                    }
+               
                 //SocketToDomain.Send(Encoding.ASCII.GetBytes("G8 CONF MY M8")); // ack for Domain- odsyłamy do Domaina że j
                 
                  // SocketToDomain.Send(Encoding.ASCII.GetBytes("G8 CONF MY M8"));
-                    for (uint j = opticalEntry.startSlot; j <= opticalEntry.lastSlot; j++)
-                    {
-                        linkResources[k].slots[j] = false; //zmieniamy stan tych szczelin bo są one żądane
-                    }
-                        packageHandler.Optical_Table.Add(opticalEntry);//można dodać wiersz do tablicy
+                    
                 
                 
                 Console.WriteLine(this.Name + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",

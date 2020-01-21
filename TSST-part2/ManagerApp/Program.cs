@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.Linq;
 using Tools;
 using System.Globalization;
+using static Tools.RoutingController;
 /// <summary>
 /// 
 /// </summary>
@@ -119,8 +120,54 @@ namespace DomainApp
                 }
                 if (sourceAddress != null && destAddress != null)
                 { //RC w swoim pliku ma odległość przy danym source i destination więc to też do zrobienia
+                   RoutingResult routingResult=domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, domain.RC.cables, domain.RC.lrms, speed); // prototyp funkcji Dijkstry
+                    List<int> idxOfSlots = new List<int>();
+                    for(int i=0; i<10;i++)
+                    {
+                        if(routingResult.slots[i])
+                        {
+                            idxOfSlots.Add(i);
+                            Console.WriteLine("Index of slot: " + i);
+                        }
+                    }
+                    foreach(var node in routingResult.Path)
+                    {
+                        Console.WriteLine("Chosen node: "+node.ToString());
+                    }
+                    List<byte> bufferToSend = new List<byte>();
+                    int ct = 0;
+                    foreach (var cab in routingResult.nodeAndPorts)
+                    {
 
-                    domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, domain.RC.cables, domain.RC.lrms, speed); // prototyp funkcji Dijkstry
+                        bool flaga = false;
+                        Socket socket = domain.CC.SocketfromIP[cab.Key];
+                        if (!flaga && ct!=routingResult.nodeAndPorts.Count-1)
+                        {
+                            bufferToSend.AddRange(Encoding.ASCII.GetBytes("ACK" + BitConverter.GetBytes(idxOfSlots[0]) + BitConverter.GetBytes(idxOfSlots[idxOfSlots.Count - 1]) + BitConverter.GetBytes(cab.Value)));
+                            flaga = true;
+                            ++ct;
+                            continue;
+                        }
+                        else if ( ct== routingResult.nodeAndPorts.Count - 1) // ostatni będzie host source
+                        {
+                            bufferToSend.AddRange(Encoding.ASCII.GetBytes("ACK" + BitConverter.GetBytes(idxOfSlots[0]) + BitConverter.GetBytes(idxOfSlots[idxOfSlots.Count - 1]) + BitConverter.GetBytes(cab.Value)));
+                            socket.BeginSend(bufferToSend.ToArray(), 0, bufferToSend.ToArray().Length, 0,
+                        new AsyncCallback(SendCallBack), socket);
+                            bufferToSend.Clear();
+                           // ct = 0;
+                        }
+                        else
+                        {
+                            bufferToSend.AddRange(BitConverter.GetBytes(cab.Value)); //inport of node
+                            ++ct;
+                            socket.BeginSend(bufferToSend.ToArray(), 0, bufferToSend.ToArray().Length, 0,
+                        new AsyncCallback(SendCallBack), socket);
+                            bufferToSend.Clear();
+                            ++ct;
+                        }                      
+                    }
+                    
+
                 }
 
                 //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
@@ -226,10 +273,10 @@ namespace DomainApp
                 byte[] byteData = Encoding.ASCII.GetBytes(data);
 
                 handler.BeginSend(byteData, 0, byteData.Length, 0,
-                    new AsyncCallback(SendCallback), handler);
+                    new AsyncCallback(SendCallBack), handler);
             }
 
-            private static void SendCallback(IAsyncResult ar)
+            public static void SendCallBack(IAsyncResult ar)
             {
                 try
                 {

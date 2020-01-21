@@ -171,14 +171,28 @@ namespace Host
             //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej, wysyła to callRequest że chce taką przepustowość do takiego hosta
             client.socketToDomain.Receive(buffer); // odpowiedź od Domaina
             
-            if(buffer[0].ToString()=="A" && buffer[1].ToString()=="C" && buffer[2].ToString()=="K") // jeśli okej to wyśle ACK
+            if(buffer.ToList().GetRange(0,3).Equals(Encoding.ASCII.GetBytes("ACK"))) // jeśli okej to wyśle ACK
             {
-                destination.modulation = BitConverter.ToInt32(buffer, 4); // dla danego sąsiada na podstawie zwróconej długości ścieżki w Routing Controller w Domainze
+                //destination.modulation = BitConverter.ToInt32(buffer, 4); // dla danego sąsiada na podstawie zwróconej długości ścieżki w Routing Controller w Domainze
                 // Domain zadecyduje jakiej modulacji użyć
-                destination.firstFrequencySlot = BitConverter.ToUInt32(buffer, 8); // używane szczeliny do danego sąsiada
-                destination.lastFrequencySlot = BitConverter.ToUInt32(buffer, 12);
+                destination.firstFrequencySlot = BitConverter.ToUInt32(buffer, 3); // używane szczeliny do danego sąsiada
+                destination.lastFrequencySlot = BitConverter.ToUInt32(buffer, 7);
+                ushort port = BitConverter.ToUInt16(buffer, 11);
+                foreach(var linkR in client.linkResources)
+                {
+                    if(port==linkR.port)
+                    {
+                        for (uint i = destination.firstFrequencySlot; i <= destination.lastFrequencySlot; i++)
+                        {
+                            linkR.slots[i] = false;
+                        }
+                        break;
+                    }
+
+                }
+                
                 ListBox12.Items.Add("I've got path to " + destination.Name + ". You can start sending messages to this destination.");
-                comboBox1.Items.Add(destination); // dodajemy do możliwych adresatów wiadomości danego sąsiada
+                //comboBox1.Items.Add(destination); // dodajemy do możliwych adresatów wiadomości danego sąsiada
             }
             WaitForData(); // po uzyskaniu wszystkich informacji przechodzimy w stan taki jak w 1 etapie
         }

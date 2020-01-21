@@ -85,13 +85,14 @@ namespace Tools
         public class RoutingResult
         {
             public List<IPAddress> Path;
+            public Dictionary<IPAddress,ushort> nodeAndPorts;
             public bool[] slots;
 
             public RoutingResult()
             {
                 slots = new bool[10];
                 Path = new List<IPAddress>();
-
+                nodeAndPorts = new Dictionary<IPAddress, ushort>();
             }
             public void addToPath(IPAddress ad)
             {
@@ -118,9 +119,10 @@ namespace Tools
                 bool[] s = new bool[10];
                 NetworkNode n1 = new NetworkNode(IPAddress.Parse("0.0.0.0"));
                 NetworkNode n2 = new NetworkNode(IPAddress.Parse("0.0.0.0"));
-
+                
                 foreach (LinkResourceManager lrm in lrms)
                 {
+                    Console.WriteLine("Checking lrms... " +lrm.IPofNode + " "+ lrm.port);
                     if (c.Node1.Equals(lrm.IPofNode) || c.Node2.Equals(lrm.IPofNode))
                     {
                         if (c.port1.Equals(lrm.port) || c.port2.Equals(lrm.port))
@@ -233,13 +235,15 @@ namespace Tools
                             n = e.NobeB;
                         }
                         else { n = e.NodeA; }
-
+                        Console.WriteLine(n.ipadd.ToString() + " slotsreuqired: "+ slots_required);
                         if (!n.visited)
                         {
                             //inspecting available slots
+                            Console.WriteLine("in slots");
                             int[] slots_available = new int[10];
                             for (int i = 0; i < 10; i++)
                             {
+                                Console.WriteLine("Edge slot: " + e.slots[i]);
                                 if (e.slots[i]) { slots_available[i] = 1; }
                                 else { slots_available[i] = 0; }
                             }
@@ -254,12 +258,13 @@ namespace Tools
                             bool reset = false;
                             for (int i = 0; i < 10; i++)
                             {
-                                if (slots_available[i] == 1 && !reset) { temp_slots++; }
-                                if (slots_available[i] == 1 && reset) { temp_slots = 1; reset = false; }
-                                if (slots_available[i] == 0) { reset = true; }
+                                if (slots_available[i].Equals(1)  && !reset) { temp_slots++; Console.WriteLine("Added"); }
+                                if (slots_available[i].Equals(1) && reset) { temp_slots = 1; reset = false; Console.WriteLine("start adding: "); }
+                                if (slots_available[i].Equals(0)) { reset = true; }
 
                                 if (temp_slots > slots_to_use) { slots_to_use = temp_slots; }
                             }
+                            Console.WriteLine("to use: " + slots_to_use);
                             //if we have enough slots then proceed
                             if (slots_to_use >= slots_required)
                             {
@@ -275,7 +280,7 @@ namespace Tools
                         }
                         current_node.visited = true;
                     }
-
+                    
                 }
                 //finding the target/destination and slots to use to provide the result
                 List<IPAddress> ReversedPath = new List<IPAddress>();
@@ -297,7 +302,7 @@ namespace Tools
 
                 //total length as a path metric, needed to verify if current slots will suffice
                 int total_length = temp_node.distance;
-
+                Console.WriteLine("Calculated length: "+total_length);
                 modulation = 0;
                 if (total_length >= 0 && total_length <= 100) modulation = 64;
                 else if (total_length > 100 && total_length <= 200) modulation = 32;
@@ -318,10 +323,51 @@ namespace Tools
                 slot_table = temp_node.slottable;
 
                 ReversedPath.Add(temp_node.ipadd);
-                while (!temp_node.predecessor.Equals(null))
+                Cable cable = findCableBetweenNodes(temp_node.ipadd, temp_node.predecessor.ipadd, cables);
+                ushort port = 0;
+                ushort inport = 0;
+                if(cable.Node1.Equals(temp_node.ipadd))
                 {
+                    port = cable.port2;
+                    inport = cable.port1;
+                }
+                else if(cable.Node2.Equals(temp_node.ipadd))
+                {
+                    port = cable.port1;
+                    inport = cable.port2;
+                }
+                result.nodeAndPorts.Add(temp_node.predecessor.ipadd, port);
+                //result.nodeAndPorts.Add(temp_node.predecessor.ipadd, inport);
+                Console.WriteLine("Node ip: " +temp_node.ipadd.ToString());
+                while (true)
+                {
+                    
+                   // !temp_node.predecessor.Equals(null)
                     temp_node = temp_node.predecessor;
+
+                    Cable cable1 = findCableBetweenNodes(temp_node.ipadd, temp_node.predecessor.ipadd, cables);
+                    ushort port1 = 0;
+                    ushort inport1 = 0;
+                    if (cable1.Node1.Equals(temp_node.ipadd))
+                    {
+                        port1 = cable1.port2;
+                        inport1 = cable1.port1;
+                    }
+                    else if (cable1.Node2.Equals(temp_node.ipadd))
+                    {
+                        port1 = cable1.port1;
+                        inport1 = cable1.port2;
+                    }
+                    result.nodeAndPorts.Add(temp_node.ipadd, inport1);
+                    result.nodeAndPorts.Add(temp_node.predecessor.ipadd, port1);
+                    
                     ReversedPath.Add(temp_node.ipadd);
+                    if(temp_node.predecessor.ipadd.Equals(source))
+                    {
+                        ReversedPath.Add(temp_node.predecessor.ipadd);
+                        break;
+                    }
+                    Console.WriteLine("Node ip: " + temp_node.ipadd.ToString());
 
                 }
 
@@ -359,6 +405,23 @@ namespace Tools
             }
 
             return result;
+        }
+
+
+
+
+        public  Cable findCableBetweenNodes(IPAddress ip1, IPAddress ip2, List<Cable> cables)
+        {
+            Cable cable = new Cable();
+            for (int i = 0; i < cables.Count; i++)
+            {
+                if ((cables[i].Node1.Equals(ip1) && cables[i].Node2.Equals(ip2) || (cables[i].Node2.Equals(ip1) && cables[i].Node1.Equals(ip2))))
+                {
+                    cable = cables[i];
+                    break;
+                }
+            }
+            return cable;
         }
 
 

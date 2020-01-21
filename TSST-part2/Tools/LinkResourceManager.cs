@@ -41,7 +41,7 @@ namespace Tools
         {
 
             LinkResourceManager link = new LinkResourceManager();
-          //  link.port = BitConverter.ToUInt16(new byte[2] { bytes[1], bytes[0] });
+            link.port = (ushort)((bytes[1] << 8) + bytes[0]);
           
             for(int i=0;i<10;i++)
             {
