@@ -28,6 +28,8 @@ namespace Tools
         {
             List<byte> bytes = new List<byte>();
             bytes.AddRange(BitConverter.GetBytes(port));
+          
+
             for(int i=0; i<slots.Length;i++)
             {
                 bytes.AddRange(BitConverter.GetBytes(slots[i]));
@@ -39,12 +41,12 @@ namespace Tools
         {
 
             LinkResourceManager link = new LinkResourceManager();
-            link.port = (ushort)((bytes[1] << 8) | bytes[0]);
-            Console.WriteLine(link.port);
+          //  link.port = BitConverter.ToUInt16(new byte[2] { bytes[1], bytes[0] });
+          
             for(int i=0;i<10;i++)
             {
                 link.slots[i] = BitConverter.ToBoolean(bytes, i+2);
-                Console.WriteLine(link.slots[i]);
+                
             }
             link.IPofNode= new IPAddress(new byte[] { bytes[12], bytes[13], bytes[14], bytes[15] });
             Console.WriteLine(link.IPofNode);

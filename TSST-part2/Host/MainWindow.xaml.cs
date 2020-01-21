@@ -29,6 +29,7 @@ namespace Host
     {
         Client client;
         RestOfHosts destinationClient { get; set; }
+        int selectedSpeed { get; set; }
         bool flag = false;
         public MainWindow()
         {
@@ -59,20 +60,21 @@ namespace Host
         {
             comboBox1.Items.Clear();
             Capacity.Items.Clear();
-           /* foreach (var client in client.Neighbours)
+            foreach (var client in client.Neighbours)
             {
-                comboBox1.Items.Add(client);
-            }*/
-            Capacity.Items.Add("1");
-            Capacity.Items.Add("5"); //available speed
-            Capacity.Items.Add("10");
+               comboBox1.Items.Add(client);
+            }
+            Capacity.Items.Add(1);
+            Capacity.Items.Add(5); //available speed
+            Capacity.Items.Add(10);
+           
 
         }
-       /* public void unableButton()
+        public void unableButton()
         {
             SendMessage.IsEnabled = !flag;
             StopSend.IsEnabled = flag;
-        }*/
+        }
         public void GetConnectionWithCloud()
         {
 
@@ -136,12 +138,19 @@ namespace Host
                                             CultureInfo.InvariantCulture) + "] " + "I got connection with management system"));
 
                 List<byte> bufferLRM = new List<byte>();
-                bufferLRM.AddRange(Encoding.ASCII.GetBytes("CC-callin " + client.clientIP.ToString() + " "));
+                List<byte> buffer2 = new List<byte>();
+                bufferLRM.AddRange(Encoding.ASCII.GetBytes("CC-callin " + client.clientIP.ToString()+ " "));
+                int i = 0;
                 foreach(LinkResourceManager lrm in client.linkResources)
                 {
+                    //bufferLRM.Add(0);
                     bufferLRM.AddRange(lrm.convertToBytes());
+                    buffer2.AddRange(lrm.convertToBytes());
+                    Console.WriteLine((ushort)((buffer2[i + 1] << 8) + buffer2[i]));
+                    i += 16;
                 }
                
+                
                 client.socketToDomain.Send(bufferLRM.ToArray()); // zgłasza się  do Domaina
 
             }
@@ -150,15 +159,15 @@ namespace Host
                 ListBox12.Items.Add(client.clientName + ": Cant get connection");
                 Task.Run(ConnectWithDomain);
             }
-            foreach(var neighbour in client.Neighbours)
-            {
-                GiveConnectionWithHost(neighbour); // wysyła żądanie polączenia z innymi hostami
-            }
+            WaitForData();
+            // GiveConnectionWithHost(neighbour); // wysyła żądanie polączenia z innymi hostami
+
         }
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
             byte[] buffer = new byte[16];
-            client.socketToDomain.Send(Encoding.ASCII.GetBytes("NCC-GET " +client.clientName + " " + destination.Name + " 10")); //callRequest(adres A, adres B, speed)
+            Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + client.clientName));
+            client.socketToDomain.Send(Encoding.ASCII.GetBytes("NCC-GET " +client.clientName + " " + destination.Name + " " + selectedSpeed)); //callRequest(adres A, adres B, speed)
             //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej, wysyła to callRequest że chce taką przepustowość do takiego hosta
             client.socketToDomain.Receive(buffer); // odpowiedź od Domaina
             
@@ -239,6 +248,16 @@ namespace Host
         private void StopSend_Click(object sender, RoutedEventArgs e)
         {
             flag = false;
+        }
+
+        private void Request_Click(object sender, RoutedEventArgs e)
+        {
+            GiveConnectionWithHost(destinationClient);
+        }
+
+        private void Capacity_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            selectedSpeed = (int)Capacity.SelectedItem;
         }
     }
 }

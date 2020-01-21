@@ -1,5 +1,6 @@
 portServer 9000
 domainServer 60001
+cloudport 56789
 ip 10.0.0.4
 IPADDRESS1 10.0.0.4
 PORTOUT1 22

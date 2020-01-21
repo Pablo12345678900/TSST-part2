@@ -31,11 +31,13 @@ namespace Subnetwork
             {
 
             }
+            subnetwork.subClientToCloud.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.cloudPort));
+            subnetwork.subClientToCloud.Send(Encoding.ASCII.GetBytes("First Message " + subnetwork.ip.ToString()));
             subnetwork.subClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.portDomain));
 
             subnetwork.subClient.Send(Encoding.ASCII.GetBytes("SUBNETWORK-callin " + subnetwork.ip.ToString()));
             subnetwork.subServer.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.port));
-            subnetwork.subClient = new Socket(IPAddress.Parse("127.0.0.1").AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+           // subnetwork.subClient = new Socket(IPAddress.Parse("127.0.0.1").AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             subnetwork.subServer.Listen(50);
             Console.WriteLine((int)subnetwork.portDomain + " " + (int)subnetwork.port);
             

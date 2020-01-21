@@ -88,13 +88,25 @@ namespace Node
             }
             SocketToDomain.Connect(new IPEndPoint(DomainIP, DomainPort));
             List<byte> bufferForLRMs = new List<byte>();
-            
-            bufferForLRMs.AddRange(Encoding.ASCII.GetBytes("CC-callin " + this.IpAddress.ToString() + " "));
+            List<byte> buffer2 = new List<byte>();
+            bufferForLRMs.AddRange(Encoding.ASCII.GetBytes("CC-callin " + this.IpAddress.ToString()+ " "));
+            int j = 0;
             foreach (var linkResource in this.linkResources)
             {
-                bufferForLRMs.AddRange(linkResource.convertToBytes());
+                //bufferForLRMs.Add(0); // flaga
+                bufferForLRMs.AddRange(linkResource.convertToBytes());        
+                buffer2.AddRange(linkResource.convertToBytes());
+                Console.WriteLine("After conversion " +(ushort)((buffer2[j + 1] << 8) + buffer2[j]));
+                j += 16;
             }
+            for (int k = 0; k < buffer2.Count; k++)
+            {
+                Console.Write(buffer2[k] + " ");
+                
+            }
+            Console.WriteLine();
             SocketToDomain.Send(bufferForLRMs.ToArray()); // zgłasza się  do Domaina
+            Console.WriteLine((ushort)((buffer2.ToArray()[1] << 8) + buffer2.ToArray()[0]));
             byte[] buffer = new byte[4096];
             Console.WriteLine(this.Name + ": [" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                             CultureInfo.InvariantCulture) + "] " + "Connected with Domain :)");

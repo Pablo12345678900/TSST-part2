@@ -67,12 +67,14 @@ namespace DomainApp
             stateObject.workSocket = handler;
 
             handler.BeginReceive(stateObject.buffer, 0, stateObject.buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallBack), stateObject);
+            //Array.Clear(stateObject.buffer, 0, stateObject.buffer.Length);
 
         }
         public static void ReceiveCallBack(IAsyncResult asyncResult)
         {
             StateObject state = (StateObject)asyncResult.AsyncState;
             Socket handler = state.workSocket; //socket of client
+            
             int ReadBytes;
             try
             {
@@ -93,9 +95,12 @@ namespace DomainApp
                 String source = message[1];
                 String destination = message[2];
                 int speed = int.Parse(message[3]);
+                Console.WriteLine("Speed" + speed);
+                Console.WriteLine("Checking in directory...");
                 IPAddress sourceAddress = domain.NCC.DirectoryRequest(source);
                 IPAddress destAddress = domain.NCC.DirectoryRequest(destination);
                 bool flag = false;
+                Console.WriteLine("Checking policy...");
                 flag = domain.NCC.PolicyRequest(sourceAddress, destAddress);
 
                 if (sourceAddress != null && destAddress != null)
@@ -115,7 +120,7 @@ namespace DomainApp
                 if (sourceAddress != null && destAddress != null)
                 { //RC w swoim pliku ma odległość przy danym source i destination więc to też do zrobienia
 
-                    //Domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, Domain.RC.cables, Domain.RC.lrms, numberOfSlots); // prototyp funkcji Dijkstry
+                    domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, domain.RC.cables, domain.RC.lrms, speed); // prototyp funkcji Dijkstry
                 }
 
                 //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
@@ -134,16 +139,29 @@ namespace DomainApp
                 domain.RC.nodesToAlgorithm.Add(IPAddress.Parse(message[1]));
                 List<byte> bufferLRM = new List<byte>();
                 bufferLRM.AddRange(Encoding.ASCII.GetBytes(message[2]));
+                for(int j=0; j<bufferLRM.Count;j++)
+                {
+                    Console.Write(bufferLRM[j] + " ");
+                    
+                }
+                Console.WriteLine();
+                ushort port1 = (ushort)((bufferLRM[1] << 8) + bufferLRM[0]);
+                Console.WriteLine(port1);
                 Console.WriteLine(bufferLRM.Count);
+                byte[] buffer = new byte[16];
                 int i = 0;
                 while(i<bufferLRM.Count)
                 {
-                    LinkResourceManager LRM = LinkResourceManager.returnLRM(bufferLRM.GetRange(i,16).ToArray());
+                    buffer = bufferLRM.GetRange(i, 16).ToArray();
+                    ushort port = (ushort)((buffer[1] << 8) + buffer[0]);
+                    Console.WriteLine(port);
+                    LinkResourceManager LRM = LinkResourceManager.returnLRM(buffer);
                     i += 16;
                     Console.WriteLine("Port: " +LRM.port);
                     domain.RC.lrms.Add(LRM);
                 }
-                
+               // Array.Clear(state.buffer, 0, state.buffer.Length);
+
             }
             if(message[0].Equals("RC-giveDomainPoint"))
             {
@@ -166,202 +184,13 @@ namespace DomainApp
             state.sb.Clear();
             handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallBack), state);
         }
-     
         
-
-      
 
       
 
            // zwykła dijkstra, trzeba wrzucić ją w RC i napisać prawidłową
             
-           /* public  static List<Cable> DijkstraAlgorithm(IPAddress source, IPAddress destination, List<Cable> cables, List<LinkResourceManager> links,int requiredSpeed, int numOfSlots, List<IPAddress> Q, List<IPAddress> S)
-            {
-                List<Cable> usedCables = new List<Cable>();
-                int n = Q.Count;
-                int j = 0;
-                for(int i=0;i<n;i++)
-                {
-                    if (source == Q[i])
-                        break;
-                    ++j;
-                }
-               
-                int[] d = new int[n];
-                int[] p = new int[n];
-                for(int i=0;i<n;i++)
-                {
-                    if (i == j)
-                        d[i] = 0;
-                    else
-                    {
-                        d[i] = int.MaxValue;
-                        p[i] = -1;
-                    }
-                }
-                while(Q.Count>0)
-                {
-                    int min = int.MaxValue;
-                    int index = 0;
-                    for(int i=0;i<n;i++)
-                    {
-                        if(d[i]<=min)
-                        {
-                            min = d[i];
-                            index = i;
-                        }
-                    }
-                    IPAddress ip = Q[index];
-                    S.Add(ip);
-                    Q.RemoveAt(index);
-                    List<IPAddress> neighbours = new List<IPAddress>();
-                    foreach(var cable in cables)
-                    {
-                        if(cable.stateOfCable==true && cable.Node1==ip)
-                        {
-                            neighbours.Add(cable.Node2);
-                        }
-                        if (cable.stateOfCable == true && cable.Node2 == ip)
-                        {
-                            neighbours.Add(cable.Node1);
-                        }
-                    }
-                    for(int i=0; i<neighbours.Count;i++)
-                    {
-                        bool flaga = false;
-                        for(int k=0; k<Q.Count;k++)
-                        {
-                            if(Q[k]==neighbours[i])
-                            {
-                                flaga = true;
-                                break;
-                            }
-
-                        }
-                        if (flaga)
-                        {
-                            int w = 0;
-                            int u = 0;
-                            for(int k=0;k<Q.Count;k++)
-                            {
-                                if (Q[k] == ip)
-                                    u = k;
-                                if (Q[k] == neighbours[i])
-                                    w = k;
-                            }
-                            Cable connectingCable=null;
-                            foreach(var cable in cables)
-                            {
-                                if ((cable.Node1 == neighbours[i] && cable.Node2 == ip) || (cable.Node2 == neighbours[i] && cable.Node1 == ip))
-                                {
-                                    connectingCable = cable;
-                                    break;
-                                }
-                            }
-                            if(d[w]>d[u]+connectingCable.length)
-                            {
-                                d[w] = d[u] + connectingCable.length;
-                                p[w] = u;
-                            }
-                        }
-                        else
-                            continue;
-                    }
-                }
-                int o = 0;
-                for(int i=0;i< domain.nodesToAlgorithm.Count;i++)
-                {
-                    if(destination==Domain.nodesToAlgorithm[i])
-                    {
-                        o = i;
-                        break;
-                    }
-                }
-                int h = p[o];
-                List<LinkResourceManager> usedLrms = new List<LinkResourceManager>();
-                IPAddress ipprev=null;
-                while(true)
-                {
-                    Cable cable = findCableBetweenNodes(Domain.nodesToAlgorithm[o], Domain.nodesToAlgorithm[h], cables);
-                    usedCables.Add(cable);
-                    if(Domain.nodesToAlgorithm[o]==destination)
-                    {
-                        IPAddress ip = Domain.nodesToAlgorithm[h];
-                        ushort port = 0;
-                        if(destination==cable.Node1)
-                        {
-                            port = cable.port2;
-                        }
-                        if (destination == cable.Node2)
-                            port = cable.port1;
-
-                        LinkResourceManager link = findLRM(ip, port, links);
-                        usedLrms.Add(link);
-                        ipprev = ip;
-                    }
-                    else if(Domain.nodesToAlgorithm[o]==ipprev)
-                    {
-                        IPAddress ip = Domain.nodesToAlgorithm[h];
-                        ushort port = 0;
-                        if (ipprev == cable.Node1)
-                        {
-                            port = cable.port2;
-                        }
-                        if (ipprev == cable.Node2)
-                            port = cable.port1;
-
-                        LinkResourceManager link = findLRM(ip, port, links);
-                        usedLrms.Add(link);
-                        ipprev = ip;
-                    }
-
-                    o = h;
-                    h = p[o];
-                    if (h == -1)
-                    {
-                        Cable lastCable = findCableBetweenNodes(Domain.nodesToAlgorithm[o], Domain.nodesToAlgorithm[h], cables);
-                        usedCables.Add(lastCable);
-                        break;
-                    }
-                }
-                int sumOfLength = 0; // odtąd 
-                foreach (var used in usedCables)
-                {
-                    sumOfLength += used.length;
-                }
-                int modulation = 0;
-                if (sumOfLength >= 0 && sumOfLength <= 100) modulation = 64;
-                else if (sumOfLength > 100 && sumOfLength <= 200) modulation = 32;
-                else if (sumOfLength > 200 && sumOfLength <= 300) modulation = 16;
-                else if (sumOfLength > 300 && sumOfLength <= 400) modulation = 8;
-                else if (sumOfLength > 400 && sumOfLength <= 500) modulation = 4;
-                else if (sumOfLength > 500) modulation = 2;
-
-                double usedFrequency = ((requiredSpeed * 2) / (Math.Log(modulation, 2))) + 10; // 5 GHz przerwa z każdej strony
-
-                numOfSlots = (int)Math.Round(usedFrequency); //dotąd wszystko będzie w Dijkstrze
-                int counter = 0;
-                int start = 0;
-                int finish = 0;
-                bool flaga = false;
-                foreach(var lrm in usedLrms) /// jesli wyznaczymy najkrótszą ścieżkę i dany lrm nie będzie miał tyle szczelin to można go w następnej iteracji odrzucić,
-                // bo przy następnym dijkstrze wyjdzie ściezka dłuższa więc i możliwe że więcej szczelin będzie wymaganych to można go juz nie brać tego lrma pod uwagę
-                {
-                    for(int i=0; i<lrm.slots.Length;i++)
-                    {
-                        if (lrm.slots[i] == true)
-                            ++counter;
-                        if (counter == numOfSlots)
-                        {
-
-                        }
-                    }
-                }
-
-
-
-                return usedCables;
-            }*/
+           
 
 
 

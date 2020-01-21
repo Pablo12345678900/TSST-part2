@@ -100,14 +100,16 @@ namespace Tools
         }
 
 
-        public RoutingResult DijkstraAlgorithm1(IPAddress source, IPAddress destination, List<Cable> cables, List<LinkResourceManager> links, int requiredSpeed, int numOfSlots, List<IPAddress> Q, List<IPAddress> S)
+        public RoutingResult DijkstraAlgorithm(IPAddress source, IPAddress destination, List<Cable> cables, List<LinkResourceManager> links,int requiredSpeed)
         {
             //building the graph
+            Console.WriteLine("Destination: " +destination.ToString());
             List<NetworkNode> Nodes = new List<NetworkNode>();
             List<Edge> Edges = new List<Edge>();
             foreach (IPAddress node in nodesToAlgorithm)
             {
                 NetworkNode Node1 = new NetworkNode(node);
+                Console.WriteLine(Node1.ipadd.ToString());
                 Nodes.Add(Node1);
             }
             foreach (Cable c in cables)
@@ -116,6 +118,7 @@ namespace Tools
                 bool[] s = new bool[10];
                 NetworkNode n1 = new NetworkNode(IPAddress.Parse("0.0.0.0"));
                 NetworkNode n2 = new NetworkNode(IPAddress.Parse("0.0.0.0"));
+
                 foreach (LinkResourceManager lrm in lrms)
                 {
                     if (c.Node1.Equals(lrm.IPofNode) || c.Node2.Equals(lrm.IPofNode))
@@ -127,15 +130,17 @@ namespace Tools
                         }
                     }
                 }
+                int counter = 0;
                 foreach (NetworkNode n in Nodes)
                 {
-                    int counter = 0;
+                    
                     if (n.ipadd.Equals(c.Node1) || n.ipadd.Equals(c.Node2))
                     {
                         if (counter == 0)
                         {
                             counter++;
                             n1 = n;
+                            continue;
                         }
                         if (counter == 1)
                         {
@@ -145,13 +150,23 @@ namespace Tools
                     }
                 }
                 Edge e = new Edge(n1, n2, s, c.length);
+
+                Edges.Add(e);
+            }
+            foreach(Edge e in Edges)
+            {
+                Console.WriteLine(e.NodeA.ipadd + " " + e.NobeB.ipadd + " " + e.length);
             }
             foreach (NetworkNode n in Nodes)
             {
                 foreach (Edge e in Edges)
                 {
-                    if (n.ipadd.Equals(e.NodeA) || n.ipadd.Equals(e.NobeB)) { n.addedge(e); }
+                    if (n.ipadd.Equals(e.NodeA.ipadd) || n.ipadd.Equals(e.NobeB.ipadd)) { n.addedge(e); }
                 }
+            }
+            foreach(var edge in Nodes[0].adjacentEdges)
+            {
+                Console.WriteLine("Edge" +Nodes[0].ipadd + " " + edge.NodeA.ipadd + " " + edge.NobeB.ipadd);
             }
             //graph is built
 
@@ -182,7 +197,8 @@ namespace Tools
                 int index = -1;
                 for (int i = 0; i < Nodes.Count; i++)
                 {
-                    if (Nodes[i].Equals(source))
+                    //Console.WriteLine("Node: "+ Nodes[i])
+                    if (Nodes[i].ipadd.Equals(source))
                     {
                         Nodes[i].distance = 0;
                         index = i;
@@ -201,7 +217,12 @@ namespace Tools
                 {
                     //popping the element
                     NetworkNode current_node = NetworkQueue[0];
+                    Console.WriteLine("Current_node: " + current_node.ipadd.ToString());
                     NetworkQueue.RemoveAt(0);
+                    foreach (var edge in current_node.adjacentEdges)
+                    {
+                        Console.WriteLine("Edge" + Nodes[0].ipadd + " " + edge.NodeA.ipadd + " " + edge.NobeB.ipadd);
+                    }
 
                     //inspecting every neighbor
                     foreach (Edge e in current_node.adjacentEdges)
@@ -260,7 +281,7 @@ namespace Tools
                 List<IPAddress> ReversedPath = new List<IPAddress>();
                 for (int i = 0; i < Nodes.Count; i++)
                 {
-                    if (Nodes[i].Equals(destination))
+                    if (Nodes[i].ipadd.Equals(destination))
                     {
                         index = i;
                         break;
