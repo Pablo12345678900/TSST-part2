@@ -166,23 +166,25 @@ namespace Host
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
             byte[] buffer = new byte[16];
-            Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + client.clientName));
+            Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + selectedSpeed));
             client.socketToDomain.Send(Encoding.ASCII.GetBytes("NCC-GET " +client.clientName + " " + destination.Name + " " + selectedSpeed)); //callRequest(adres A, adres B, speed)
             //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej, wysyła to callRequest że chce taką przepustowość do takiego hosta
             client.socketToDomain.Receive(buffer); // odpowiedź od Domaina
-            
-            if(buffer.ToList().GetRange(0,3).Equals(Encoding.ASCII.GetBytes("ACK"))) // jeśli okej to wyśle ACK
+
+            if (Encoding.ASCII.GetString(buffer.ToList().GetRange(0, 3).ToArray()).Equals("ACK")) // jeśli okej to wyśle ACK
             {
                 //destination.modulation = BitConverter.ToInt32(buffer, 4); // dla danego sąsiada na podstawie zwróconej długości ścieżki w Routing Controller w Domainze
                 // Domain zadecyduje jakiej modulacji użyć
-                destination.firstFrequencySlot = BitConverter.ToUInt32(buffer, 3); // używane szczeliny do danego sąsiada
-                destination.lastFrequencySlot = BitConverter.ToUInt32(buffer, 7);
+                Console.WriteLine("I caught conf");
+                Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + client.clientName));
+                destination.firstFrequencySlot = BitConverter.ToInt32(buffer, 3); // używane szczeliny do danego sąsiada
+                destination.lastFrequencySlot = BitConverter.ToInt32(buffer, 7);
                 ushort port = BitConverter.ToUInt16(buffer, 11);
                 foreach(var linkR in client.linkResources)
                 {
                     if(port==linkR.port)
                     {
-                        for (uint i = destination.firstFrequencySlot; i <= destination.lastFrequencySlot; i++)
+                        for (int i = destination.firstFrequencySlot; i <= destination.lastFrequencySlot; i++)
                         {
                             linkR.slots[i] = false;
                         }
@@ -190,6 +192,7 @@ namespace Host
                     }
 
                 }
+                Console.WriteLine("Changed state");
                 
                 ListBox12.Items.Add("I've got path to " + destination.Name + ". You can start sending messages to this destination.");
                 //comboBox1.Items.Add(destination); // dodajemy do możliwych adresatów wiadomości danego sąsiada

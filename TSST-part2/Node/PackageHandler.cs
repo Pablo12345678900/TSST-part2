@@ -29,8 +29,8 @@ namespace Node
         {
             Optical_Entry optical = new Optical_Entry();
             optical.inPort = (ushort)((bytes[11] << 8) + bytes[10]);
-            optical.startSlot = BitConverter.ToUInt32(bytes, 0);
-            optical.lastSlot = BitConverter.ToUInt32(bytes, 4);
+            optical.startSlot = BitConverter.ToInt32(bytes, 0);
+            optical.lastSlot = BitConverter.ToInt32(bytes, 4);
             optical.outPort = (ushort)((bytes[9] << 8) + bytes[8]);
             return optical;
         }

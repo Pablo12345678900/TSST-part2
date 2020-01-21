@@ -85,14 +85,16 @@ namespace Tools
         public class RoutingResult
         {
             public List<IPAddress> Path;
-            public Dictionary<IPAddress,ushort> nodeAndPorts;
+            public Dictionary<IPAddress,ushort> nodeAndPortsOut;
+            public Dictionary<IPAddress, ushort> nodeAndPortsIn;
             public bool[] slots;
 
             public RoutingResult()
             {
                 slots = new bool[10];
                 Path = new List<IPAddress>();
-                nodeAndPorts = new Dictionary<IPAddress, ushort>();
+                nodeAndPortsOut = new Dictionary<IPAddress, ushort>();
+                nodeAndPortsIn = new Dictionary<IPAddress, ushort>();
             }
             public void addToPath(IPAddress ad)
             {
@@ -324,19 +326,22 @@ namespace Tools
 
                 ReversedPath.Add(temp_node.ipadd);
                 Cable cable = findCableBetweenNodes(temp_node.ipadd, temp_node.predecessor.ipadd, cables);
+                List<ushort> ports = new List<ushort>();
                 ushort port = 0;
                 ushort inport = 0;
-                if(cable.Node1.Equals(temp_node.ipadd))
+                if (cable.Node1.Equals(temp_node.ipadd))
                 {
                     port = cable.port2;
-                    inport = cable.port1;
+                   // inport = cable.port1;
                 }
-                else if(cable.Node2.Equals(temp_node.ipadd))
+                else if (cable.Node2.Equals(temp_node.ipadd))
                 {
                     port = cable.port1;
-                    inport = cable.port2;
+                   // inport = cable.port2;
                 }
-                result.nodeAndPorts.Add(temp_node.predecessor.ipadd, port);
+                ports.Add(port);
+                result.nodeAndPortsOut.Add(temp_node.predecessor.ipadd, port);
+               //result.nodeAndPorts.Add(temp_node.predecessor.ipadd, ports);
                 //result.nodeAndPorts.Add(temp_node.predecessor.ipadd, inport);
                 Console.WriteLine("Node ip: " +temp_node.ipadd.ToString());
                 while (true)
@@ -358,13 +363,18 @@ namespace Tools
                         port1 = cable1.port1;
                         inport1 = cable1.port2;
                     }
-                    result.nodeAndPorts.Add(temp_node.ipadd, inport1);
-                    result.nodeAndPorts.Add(temp_node.predecessor.ipadd, port1);
                     
+                    result.nodeAndPortsIn.Add(temp_node.ipadd, inport1);
+                    Console.WriteLine("added to dictionary");
+                    
+                    result.nodeAndPortsOut.Add(temp_node.predecessor.ipadd, port1);
+                    //result.nodeAndPorts.Add(temp_node.predecessor.ipadd, port1);
+
                     ReversedPath.Add(temp_node.ipadd);
                     if(temp_node.predecessor.ipadd.Equals(source))
                     {
                         ReversedPath.Add(temp_node.predecessor.ipadd);
+                       // result.nodeAndPortsOut.Add(temp_node.predecessor.ipadd, port1);
                         break;
                     }
                     Console.WriteLine("Node ip: " + temp_node.ipadd.ToString());

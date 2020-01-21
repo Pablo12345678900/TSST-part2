@@ -30,7 +30,7 @@ namespace Node
         public ushort DomainPort { get; set; }
 
         public byte[] bufferForPacket = new byte[128];
-        public byte[] bufferForManagement = new byte[12]; //optical entry has 12 bytes: 2 ints and 2 shorts
+        public byte[] bufferForManagement = new byte[16]; //optical entry has 12 bytes: 2 ints and 2 shorts
         public List<ushort> usedPorts = new List<ushort>();
 
         public List<LinkResourceManager> linkResources=new List<LinkResourceManager>();// traktujemy router jako podsieć dla ułatwienia dlatego dany router ma kilka LRM
@@ -179,13 +179,16 @@ namespace Node
                 // Domain będzie aktualizował te optical entry
                 
                 SocketToDomain.Receive(bufferForManagement);// from CC in management we have to check whether it is possible to take requested capacity
+                Console.WriteLine("Added123");
                 Optical_Entry opticalEntry=null;
-                if (bufferForManagement.ToList().GetRange(0,3).Equals(Encoding.ASCII.GetBytes("ACK")))
+                if (Encoding.ASCII.GetString(bufferForManagement.ToList().GetRange(0,3).ToArray()).Equals("ACK"))
                 {
-                   opticalEntry = packageHandler.FromBytesToEntry(bufferForManagement.ToList().GetRange(3,12).ToArray());
+                    Console.WriteLine("Added123456");
+                    opticalEntry = packageHandler.FromBytesToEntry(bufferForManagement.ToList().GetRange(3,12).ToArray());
                     packageHandler.Optical_Table.Add(opticalEntry);
+                    Console.WriteLine("Added");
 
-                }
+               }
                 //Optical_Entry opticalEntry = packageHandler.FromBytesToEntry(bufferForManagement); // 
                 int k = 0;
                 
@@ -194,7 +197,7 @@ namespace Node
                     {
                     if (link.port == opticalEntry.outPort)
                     {
-                        for (uint j = opticalEntry.startSlot; j <= opticalEntry.lastSlot; j++)
+                        for (int j = opticalEntry.startSlot; j <= opticalEntry.lastSlot; j++)
                         {
                             link.slots[j] = false;
                         }

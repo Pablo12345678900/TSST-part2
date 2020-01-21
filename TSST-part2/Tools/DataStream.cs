@@ -13,8 +13,8 @@ namespace Tools
         public ushort currentPort { get; set; }
         public string payload { get; set; }
         
-        public uint firstFrequencySlot { get; set; } // these slots will be given by host ( if requested path will be free)
-        public uint lastFrequencySlot { get; set; }
+        public int firstFrequencySlot { get; set; } // these slots will be given by host ( if requested path will be free)
+        public int lastFrequencySlot { get; set; }
 
         public int modulation { get; set; }
         public uint streamLength { get; set; }
@@ -47,8 +47,8 @@ namespace Tools
             dataStream.destinationHost = new IPAddress(new byte[] { bytes[4], bytes[5], bytes[6], bytes[7] });
             dataStream.currentNode = new IPAddress(new byte[] { bytes[8], bytes[9], bytes[10], bytes[11] });
             dataStream.currentPort = (ushort)((bytes[13] << 8) + bytes[12]);
-            dataStream.firstFrequencySlot = BitConverter.ToUInt32(bytes, 14);
-            dataStream.lastFrequencySlot = BitConverter.ToUInt32(bytes, 18);
+            dataStream.firstFrequencySlot = BitConverter.ToInt32(bytes, 14);
+            dataStream.lastFrequencySlot = BitConverter.ToInt32(bytes, 18);
             dataStream.streamLength = BitConverter.ToUInt32(bytes, 22);
             dataStream.payload = Encoding.ASCII.GetString(bytes.ToList().GetRange(26, (int)(dataStream.streamLength - 26)).ToArray());
 

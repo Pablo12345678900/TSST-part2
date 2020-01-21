@@ -136,35 +136,43 @@ namespace DomainApp
                     }
                     List<byte> bufferToSend = new List<byte>();
                     int ct = 0;
-                    foreach (var cab in routingResult.nodeAndPorts)
+                    foreach (var cab in routingResult.nodeAndPortsOut)
                     {
-
                         bool flaga = false;
                         Socket socket = domain.CC.SocketfromIP[cab.Key];
-                        if (!flaga && ct!=routingResult.nodeAndPorts.Count-1)
+                        Console.WriteLine("Adres: " + cab.Key + " port out: " + cab.Value);
+                        foreach (var cab1 in routingResult.nodeAndPortsIn)
                         {
-                            bufferToSend.AddRange(Encoding.ASCII.GetBytes("ACK" + BitConverter.GetBytes(idxOfSlots[0]) + BitConverter.GetBytes(idxOfSlots[idxOfSlots.Count - 1]) + BitConverter.GetBytes(cab.Value)));
-                            flaga = true;
-                            ++ct;
-                            continue;
+                            if (cab1.Key.Equals(cab.Key))
+                            {
+                                Console.WriteLine("Port in: " + cab1.Value);
+                                bufferToSend.AddRange(Encoding.ASCII.GetBytes("ACK"));
+                                bufferToSend.AddRange(BitConverter.GetBytes(idxOfSlots[0]));
+                                bufferToSend.AddRange(BitConverter.GetBytes(idxOfSlots[idxOfSlots.Count - 1]));
+                                bufferToSend.AddRange(BitConverter.GetBytes(cab.Value));
+                                bufferToSend.AddRange(BitConverter.GetBytes(cab1.Value));
+                                socket.BeginSend(bufferToSend.ToArray(), 0, bufferToSend.ToArray().Length, 0,
+                        new AsyncCallback(SendCallBack), socket);
+                                bufferToSend.Clear();
+                                flaga = true;
+                                break;
+                            }
                         }
-                        else if ( ct== routingResult.nodeAndPorts.Count - 1) // ostatni będzie host source
+                        if(!flaga)
                         {
-                            bufferToSend.AddRange(Encoding.ASCII.GetBytes("ACK" + BitConverter.GetBytes(idxOfSlots[0]) + BitConverter.GetBytes(idxOfSlots[idxOfSlots.Count - 1]) + BitConverter.GetBytes(cab.Value)));
+                            bufferToSend.AddRange(Encoding.ASCII.GetBytes("ACK"));
+                            bufferToSend.AddRange(BitConverter.GetBytes(idxOfSlots[0]));
+                            bufferToSend.AddRange(BitConverter.GetBytes(idxOfSlots[idxOfSlots.Count - 1]));
+                            bufferToSend.AddRange(BitConverter.GetBytes(cab.Value));
+                           
                             socket.BeginSend(bufferToSend.ToArray(), 0, bufferToSend.ToArray().Length, 0,
                         new AsyncCallback(SendCallBack), socket);
+                            Console.WriteLine("Send to host: " + cab.Value);
                             bufferToSend.Clear();
-                           // ct = 0;
+                            flaga = false;
                         }
-                        else
-                        {
-                            bufferToSend.AddRange(BitConverter.GetBytes(cab.Value)); //inport of node
-                            ++ct;
-                            socket.BeginSend(bufferToSend.ToArray(), 0, bufferToSend.ToArray().Length, 0,
-                        new AsyncCallback(SendCallBack), socket);
-                            bufferToSend.Clear();
-                            ++ct;
-                        }                      
+                    }
+                                                              
                     }
                     
 
@@ -172,7 +180,7 @@ namespace DomainApp
 
                 //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
                 
-            }
+            
             if(message[0].Equals("RC-SecondDomainTopology"))
             {
                 IPAddress borderAddress = IPAddress.Parse(message[1]);

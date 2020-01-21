@@ -12,8 +12,8 @@ namespace Host
         public string Name { get; set; }
         public IPAddress ip { get; set; }
         public int modulation { get; set; }
-        public uint firstFrequencySlot { get; set; } // these slots will be given by host ( if requested path will be free)
-        public uint lastFrequencySlot { get; set; }
+        public int firstFrequencySlot { get; set; } // these slots will be given by host ( if requested path will be free)
+        public int lastFrequencySlot { get; set; }
         public bool canSend { get; set; }
        // public bool isOnline { get; set; }
         public RestOfHosts(string path)
