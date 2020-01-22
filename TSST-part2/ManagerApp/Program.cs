@@ -226,7 +226,7 @@ namespace DomainApp
                     //Console.WriteLine("Connected");
                     domain.domainClient.Send(buffer.ToArray());
                     Console.WriteLine("Connected");
-                    domain.domainClient.Disconnect(true);
+                   // domain.domainClient.Disconnect(true);
                     //domain.domainClient.Send(buffer.ToArray());
                 }
             }
@@ -243,7 +243,7 @@ namespace DomainApp
                 string line;
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    if ((line.Split(' ')[0].Equals(message[1]) && line.Split(' ')[1].Equals(message[2])) || (line.Split(' ')[0].Equals(message[2]) && line.Split(' ')[1].Equals(message[1])))
+                    if ((IPAddress.Parse(line.Split(' ')[0]).Equals(source) && IPAddress.Parse(line.Split(' ')[1]).Equals(destAddress)) || (IPAddress.Parse(line.Split(' ')[0]).Equals(destAddress) && IPAddress.Parse(line.Split(' ')[1]).Equals(source)))
                     {
                         borderAddress = IPAddress.Parse(line.Split(' ')[2]);
                         break;
@@ -251,11 +251,13 @@ namespace DomainApp
 
                 }
                 domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
-                domain.domainClient.Send(Encoding.ASCII.GetBytes("RC-SecondDomainTopology " + borderAddress.ToString() + " " + source.ToString() + " " + speed + " " + destination.ToString()));
-                domain.domainClient.Disconnect(true);
+                domain.domainClient.Send(Encoding.ASCII.GetBytes("RC-SecondDomainTopology " + borderAddress.ToString() + " " + source.ToString() + " " + speed + " " + destAddress.ToString()));
+               // domain.domainClient.Disconnect(true);
+                Console.WriteLine("Send " + borderAddress.ToString());
             }
             if (message[0].Equals("SET-REST-CONNECTION"))
             {
+                Console.WriteLine("I will set rest connection");
                 IPAddress source = IPAddress.Parse(message[1]);
                 IPAddress destination = IPAddress.Parse(message[2]);
                 int speed = int.Parse(message[3]);
@@ -263,6 +265,7 @@ namespace DomainApp
                 Console.WriteLine("Checking directory...");
                 Console.WriteLine("Checking policy...");
                 domain.RC.DijkstraAlgorithm(source, destination, domain.RC.cables, domain.RC.lrms, speed);
+
             }
 
             //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
@@ -274,17 +277,19 @@ namespace DomainApp
             }
             if(message[0].Equals("RC-SecondDomainTopology"))
             {
+                Console.WriteLine("I got response");
                 IPAddress borderAddress = IPAddress.Parse(message[1]);
                 IPAddress sourceAddress = IPAddress.Parse(message[2]);
                 int speed = int.Parse(message[3]);
                 IPAddress destinationAddress = IPAddress.Parse(message[4]);
+                Console.WriteLine("Saved data");
                 domain.RC.DijkstraAlgorithm(sourceAddress, borderAddress, domain.RC.cables, domain.RC.lrms, speed);
-                Socket socket = domain.CC.SocketfromIP[IPAddress.Parse("127.0.0.1")];
+               // Socket socket = domain.CC.SocketfromIP[IPAddress.Parse("127.0.0.1")];
                 List<byte> buffer = new List<byte>();
                 buffer.AddRange(Encoding.ASCII.GetBytes("SET-REST-CONNECTION " + borderAddress.ToString() + " "+ destinationAddress.ToString() + " " + speed));
-                domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
+                //domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
                 domain.domainClient.Send(buffer.ToArray());
-                domain.domainClient.Disconnect(true);
+                //domain.domainClient.Disconnect(true);
                 // socket.BeginSend(buffer.ToArray(), 0, buffer.ToArray().Length, 0, new AsyncCallback(SendCallBack), socket);
 
 
