@@ -396,7 +396,7 @@ namespace Tools
 
                 for (int i = 0; i < 10; i++)
                 {
-                    if (i >= slot_index && i <= slot_index+slots_required)
+                    if (i >= slot_index && i < slot_index+slots_required)
                     {
                         result.slots[i] = true;
                     }
