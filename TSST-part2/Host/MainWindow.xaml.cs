@@ -159,14 +159,16 @@ namespace Host
                 ListBox12.Items.Add(client.clientName + ": Cant get connection");
                 Task.Run(ConnectWithDomain);
             }
-            WaitForData();
+            Thread thread = new Thread(WaitForData);
+            thread.Start();
+            //WaitForData();
             // GiveConnectionWithHost(neighbour); // wysyła żądanie polączenia z innymi hostami
 
         }
         public void GiveConnectionWithHost(RestOfHosts destination)
         {
             byte[] buffer = new byte[16];
-            Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + selectedSpeed));
+           // Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + selectedSpeed));
             client.socketToDomain.Send(Encoding.ASCII.GetBytes("NCC-GET " +client.clientName + " " + destination.Name + " " + selectedSpeed)); //callRequest(adres A, adres B, speed)
             //probnie 10Gbps ale chyba zrobimy mozliwosc wyboru tej szybkosci bitowej, wysyła to callRequest że chce taką przepustowość do takiego hosta
             client.socketToDomain.Receive(buffer); // odpowiedź od Domaina
@@ -176,7 +178,7 @@ namespace Host
                 //destination.modulation = BitConverter.ToInt32(buffer, 4); // dla danego sąsiada na podstawie zwróconej długości ścieżki w Routing Controller w Domainze
                 // Domain zadecyduje jakiej modulacji użyć
                 Console.WriteLine("I caught conf");
-                Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + client.clientName));
+               // Dispatcher.Invoke(() => ListBox12.Items.Add("Selected speed " + client.clientName));
                 destination.firstFrequencySlot = BitConverter.ToInt32(buffer, 3); // używane szczeliny do danego sąsiada
                 destination.lastFrequencySlot = BitConverter.ToInt32(buffer, 7);
                 ushort port = BitConverter.ToUInt16(buffer, 11);
@@ -197,7 +199,7 @@ namespace Host
                 ListBox12.Items.Add("I've got path to " + destination.Name + ". You can start sending messages to this destination.");
                 //comboBox1.Items.Add(destination); // dodajemy do możliwych adresatów wiadomości danego sąsiada
             }
-            WaitForData(); // po uzyskaniu wszystkich informacji przechodzimy w stan taki jak w 1 etapie
+           // WaitForData(); // po uzyskaniu wszystkich informacji przechodzimy w stan taki jak w 1 etapie
         }
         public void WaitForData()
         {
@@ -206,6 +208,7 @@ namespace Host
                 byte[] buffer = new byte[256];
                 client.socketToCloud.Receive(buffer);
                 DataStream dataStream = DataStream.toData(buffer);
+                Dispatcher.Invoke(() => ListBox12.Items.Add("I have message from: " + dataStream.sourceHost + " payload: " + dataStream.payload));
                 //log o tym ze dostałem strumień
             }
         }

@@ -159,7 +159,7 @@ namespace Node
         public void ForwardPacket(byte[] bytes)
         {
             DataStream dataStream = DataStream.toData(bytes);
-            
+            Console.WriteLine("I received packet");
             packageHandler.handlePackage(dataStream);
 
             SocketToForward.Send(dataStream.toBytes());

@@ -35,7 +35,7 @@ namespace Tools
             bytes.AddRange(BitConverter.GetBytes(currentPort));
             bytes.AddRange(BitConverter.GetBytes(firstFrequencySlot));
             bytes.AddRange(BitConverter.GetBytes(lastFrequencySlot));
-            streamLength = (uint)(22 + payload.Length);
+            streamLength = (uint)(26 + payload.Length);
             bytes.AddRange(BitConverter.GetBytes(streamLength));
             bytes.AddRange(Encoding.ASCII.GetBytes(payload ?? ""));
             return bytes.ToArray();

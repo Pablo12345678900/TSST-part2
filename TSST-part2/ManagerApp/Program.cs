@@ -167,7 +167,7 @@ namespace DomainApp
                            
                             socket.BeginSend(bufferToSend.ToArray(), 0, bufferToSend.ToArray().Length, 0,
                         new AsyncCallback(SendCallBack), socket);
-                            Console.WriteLine("Send to host: " + cab.Value);
+                            Console.WriteLine("Send to host: " + cab.Key);
                             bufferToSend.Clear();
                             flaga = false;
                         }
