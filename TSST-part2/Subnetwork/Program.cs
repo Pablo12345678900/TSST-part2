@@ -2,6 +2,9 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Net;
+using System.Collections.Generic;
+using Tools;
+using System.Threading;
 namespace Subnetwork
 {
     public class StateObject
@@ -31,11 +34,33 @@ namespace Subnetwork
             {
 
             }
+            byte[] buffer = new byte[128];
             subnetwork.subClientToCloud.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.cloudPort));
             subnetwork.subClientToCloud.Send(Encoding.ASCII.GetBytes("First Message " + subnetwork.ip.ToString()));
+            subnetwork.subClientToCloud.Receive(buffer);
+            List<ushort> ports = subnetwork.givePorts(buffer);
+            foreach(var port in ports)
+            {
+                LinkResourceManager link = new LinkResourceManager(port);
+                link.IPofNode = subnetwork.ip;
+                subnetwork.lrms.Add(link);
+            }
+            List<byte> bufferLRM = new List<byte>();
+            bufferLRM.AddRange(Encoding.ASCII.GetBytes("SUBNETWORK-callin " + subnetwork.ip.ToString() + " "));
+           // int i = 0;
+            foreach (LinkResourceManager lrm in subnetwork.lrms)
+            {
+                //bufferLRM.Add(0);
+                bufferLRM.AddRange(lrm.convertToBytes());
+              //  buffer2.AddRange(lrm.convertToBytes());
+               // Console.WriteLine((ushort)((buffer2[i + 1] << 8) + buffer2[i]));
+               // i += 16;
+            }
             subnetwork.subClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.portDomain));
 
-            subnetwork.subClient.Send(Encoding.ASCII.GetBytes("SUBNETWORK-callin " + subnetwork.ip.ToString()));
+            subnetwork.subClient.Send(bufferLRM.ToArray());
+            Thread thread = new Thread(WaitForData);
+
             subnetwork.subServer.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), (int)subnetwork.port));
            // subnetwork.subClient = new Socket(IPAddress.Parse("127.0.0.1").AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             subnetwork.subServer.Listen(50);
@@ -81,5 +106,15 @@ namespace Subnetwork
                 Console.WriteLine("Connected to subnetwork: " + IPAddress.Parse(message[1]));
             }
         }
+        public static void WaitForData()// dane które przyjdą na adres 10.0.0.4 wiadomo że to będą styki czyli trzeba tylko ->znaleźć styk-> zmienić port i odesłać do chmury
+        {
+            while(true)
+            {
+                byte[] buffer = new byte[128];
+                subnetwork.subClientToCloud.Receive(buffer);
+            }
+        }
+        // styki można utworzyć przy zgłaszaniu się do chmury tej podsieci: wiemy że port po jednej stronie to x a po drugiej to x+1, z portów które zwróciło, szukamy gdzie jest różnica w portach o 1
+
         }
 }

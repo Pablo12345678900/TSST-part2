@@ -23,6 +23,7 @@ namespace DomainApp
         public Socket domainServer { get; set; }
         public Socket domainClient { get; set; }
         public ushort port { get; set; }
+        public Socket secondDomainSocket { get; set; }
 
         public ushort secondDomainPort { get; set; }
         
@@ -36,12 +37,12 @@ namespace DomainApp
         {
             RC = new RoutingController();
             CC = new ConnectionController();
-            NCC = new NetworkCallController("directory.txt", "policy.txt");
+            NCC = new NetworkCallController("directory1.txt", "policy.txt");
             IPAddress myhost = IPAddress.Parse("127.0.0.1");
             domainServer = new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
            
             domainClient= new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
+            secondDomainSocket= new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
         public void readinfo(String conFile)
         {

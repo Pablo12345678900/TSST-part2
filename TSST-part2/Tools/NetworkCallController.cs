@@ -33,6 +33,7 @@ namespace Tools
                 {
                     iPAddress = IPAddress.Parse(line.Split(' ')[1]);
                     flaga = true;
+                    break;
                 }
             }
             if (flaga)

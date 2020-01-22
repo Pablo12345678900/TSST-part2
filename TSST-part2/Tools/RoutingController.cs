@@ -12,7 +12,7 @@ namespace Tools
         public List<Cable> cables = new List<Cable>();
         public List<IPAddress> nodesToAlgorithm = new List<IPAddress>();
         public List<LinkResourceManager> lrms = new List<LinkResourceManager>();
-        
+        public IPAddress ipOfSubnet { get; set; }
         public RoutingController()
         {
 
@@ -112,7 +112,7 @@ namespace Tools
             foreach (IPAddress node in nodesToAlgorithm)
             {
                 NetworkNode Node1 = new NetworkNode(node);
-                Console.WriteLine(Node1.ipadd.ToString());
+              //  Console.WriteLine(Node1.ipadd.ToString());
                 Nodes.Add(Node1);
             }
             foreach (Cable c in cables)
@@ -124,7 +124,7 @@ namespace Tools
                 
                 foreach (LinkResourceManager lrm in lrms)
                 {
-                    Console.WriteLine("Checking lrms... " +lrm.IPofNode + " "+ lrm.port);
+                   // Console.WriteLine("Checking lrms... " +lrm.IPofNode + " "+ lrm.port);
                     if (c.Node1.Equals(lrm.IPofNode) || c.Node2.Equals(lrm.IPofNode))
                     {
                         if (c.port1.Equals(lrm.port) || c.port2.Equals(lrm.port))
@@ -157,10 +157,10 @@ namespace Tools
 
                 Edges.Add(e);
             }
-            foreach(Edge e in Edges)
+           /* foreach(Edge e in Edges)
             {
                 Console.WriteLine(e.NodeA.ipadd + " " + e.NobeB.ipadd + " " + e.length);
-            }
+            }*/
             foreach (NetworkNode n in Nodes)
             {
                 foreach (Edge e in Edges)
@@ -168,10 +168,10 @@ namespace Tools
                     if (n.ipadd.Equals(e.NodeA.ipadd) || n.ipadd.Equals(e.NobeB.ipadd)) { n.addedge(e); }
                 }
             }
-            foreach(var edge in Nodes[0].adjacentEdges)
+            /*foreach(var edge in Nodes[0].adjacentEdges)
             {
                 Console.WriteLine("Edge" +Nodes[0].ipadd + " " + edge.NodeA.ipadd + " " + edge.NobeB.ipadd);
-            }
+            }*/
             //graph is built
 
             //tworze result bo inaczej ma error ze nic nie zwraca jak jest w bloku
@@ -223,10 +223,10 @@ namespace Tools
                     NetworkNode current_node = NetworkQueue[0];
                     Console.WriteLine("Current_node: " + current_node.ipadd.ToString());
                     NetworkQueue.RemoveAt(0);
-                    foreach (var edge in current_node.adjacentEdges)
+                   /* foreach (var edge in current_node.adjacentEdges)
                     {
-                        Console.WriteLine("Edge" + Nodes[0].ipadd + " " + edge.NodeA.ipadd + " " + edge.NobeB.ipadd);
-                    }
+                        Console.WriteLine("Edge"  + " " + edge.NodeA.ipadd + " " + edge.NobeB.ipadd);
+                    }*/
 
                     //inspecting every neighbor
                     foreach (Edge e in current_node.adjacentEdges)
@@ -245,7 +245,7 @@ namespace Tools
                             int[] slots_available = new int[10];
                             for (int i = 0; i < 10; i++)
                             {
-                                Console.WriteLine("Edge slot: " + e.slots[i]);
+                                //Console.WriteLine("Edge slot: " + e.slots[i]);
                                 if (e.slots[i]) { slots_available[i] = 1; }
                                 else { slots_available[i] = 0; }
                             }
@@ -260,7 +260,7 @@ namespace Tools
                             bool reset = false;
                             for (int i = 0; i < 10; i++)
                             {
-                                if (slots_available[i].Equals(1)  && !reset) { temp_slots++; Console.WriteLine("Added"); }
+                                if (slots_available[i].Equals(1)  && !reset) { temp_slots++;  }
                                 if (slots_available[i].Equals(1) && reset) { temp_slots = 1; reset = false; Console.WriteLine("start adding: "); }
                                 if (slots_available[i].Equals(0)) { reset = true; }
 

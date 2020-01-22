@@ -63,7 +63,7 @@ namespace CableCloud
             {
 
                 InitializeComponent();
-                cableCloud = Cloud.createCloud("DataForCloud.txt");
+                cableCloud = Cloud.createCloud(args[1]);
 
 
             }
@@ -169,6 +169,14 @@ namespace CableCloud
 
                 Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
                                               CultureInfo.InvariantCulture) + "] " + node.ToString() + " called in"));
+            }
+            else if(message[0].Equals("ENNI"))
+            {
+                IPAddress node = IPAddress.Parse(message[1]);
+                SocketFromIP.TryAdd(handler, node);
+                IPFromSocket.TryAdd(node, handler);
+                Dispatcher.Invoke(() => Logs.Items.Add("[" + DateTime.UtcNow.ToString("HH:mm:ss.fff",
+                                             CultureInfo.InvariantCulture) + "] " + node.ToString() + " called in"));
             }
             else
             {

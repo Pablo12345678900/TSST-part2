@@ -49,7 +49,7 @@ namespace Tools
                 
             }
             link.IPofNode= new IPAddress(new byte[] { bytes[12], bytes[13], bytes[14], bytes[15] });
-            Console.WriteLine(link.IPofNode);
+           // Console.WriteLine(link.IPofNode);
             return link;
         }
    }

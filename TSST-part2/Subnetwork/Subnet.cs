@@ -21,6 +21,7 @@ namespace Subnetwork
         public Socket subServer { get; set; }
         public Socket subClient { get; set; }
         public Socket subClientToCloud { get; set; }
+        public List<LinkResourceManager> lrms = new List<LinkResourceManager>();
 
         public ManualResetEvent subDone = new ManualResetEvent(false);
 
@@ -73,6 +74,18 @@ namespace Subnetwork
             }
             RC.cables = readCables;
         }
-        
+        public List<ushort> givePorts(byte[] bytes) // change from bytes to port number
+        {
+            List<ushort> list = new List<ushort>();
+            for (int i = 0; i < bytes.Length; i = i + 2)
+            {
+                ushort port = (ushort)((bytes[i + 1] << 8) + bytes[i]);
+                if (port.Equals(0))
+                    break;
+                list.Add(port);
+            }
+            return list;
+        }
+
     }
 }

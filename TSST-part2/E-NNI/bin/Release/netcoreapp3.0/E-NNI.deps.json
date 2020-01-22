@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.0": {
+      "E-NNI/1.0.0": {
+        "dependencies": {
+          "Tools": "1.0.0"
+        },
+        "runtime": {
+          "E-NNI.dll": {}
+        }
+      },
+      "Tools/1.0.0": {
+        "runtime": {
+          "Tools.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "E-NNI/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Tools/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

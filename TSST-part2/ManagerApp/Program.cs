@@ -40,13 +40,20 @@ namespace DomainApp
             try
             {
                 domain.readinfo(args[0]);
+                domain.NCC.directory = args[1];
             }
             catch(Exception e)
             {
 
             }
+            Console.WriteLine(domain.port);
             domain.domainServer.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.port));
+            
             domain.domainServer.Listen(50);
+            
+           // Thread thread = new Thread(connectWithSecondDomain);
+            //thread.Start();
+         //   domain.secondDomainSocket.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
 
             while(true)
             {
@@ -56,6 +63,52 @@ namespace DomainApp
             }
            
            // Thread2.Start();
+
+        }
+        public static void connectWithSecondDomain()
+        {
+
+            try
+            {
+                domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Domain unreachable, trying reconnecting...");
+                connectWithSecondDomain();
+            }
+            domain.domainClient.Send(Encoding.ASCII.GetBytes("Domain-callin " + IPAddress.Parse("127.0.0.1")));
+            while(true)
+            {
+                byte[] buffer = new byte[128];
+                int readBytes = 0;
+                readBytes=domain.domainClient.Receive(buffer);
+                StringBuilder sb = new StringBuilder();
+                sb.Append(Encoding.ASCII.GetString(buffer, 0, readBytes));
+                var message = sb.ToString().Split(' ');
+                if(message[0].Equals("RC-giveDomainPoint"))
+                {
+                    IPAddress source = IPAddress.Parse(message[1]);
+                    IPAddress destination = IPAddress.Parse(message[2]);
+                    int speed = int.Parse(message[3]);
+                    StreamReader streamReader = new StreamReader("domainPoints.txt");
+                    IPAddress borderAddress = null;
+                    string line;
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        if ((line.Split(' ')[0].Equals(message[1]) && line.Split(' ')[1].Equals(message[2])) || (line.Split(' ')[0].Equals(message[2]) && line.Split(' ')[1].Equals(message[1])))
+                        {
+                            borderAddress = IPAddress.Parse(line.Split(' ')[2]);
+                            break;
+                        }
+                            
+                    }
+
+                    domain.domainClient.Send(Encoding.ASCII.GetBytes("RC-SecondDomainTopology " + borderAddress.ToString() + " " + source.ToString() + " "+ speed + " " + destination.ToString()));
+                }
+                
+            }
+            
 
         }
       
@@ -96,7 +149,7 @@ namespace DomainApp
                 String source = message[1];
                 String destination = message[2];
                 int speed = int.Parse(message[3]);
-                Console.WriteLine("Speed" + speed);
+                Console.WriteLine("Speed " + speed);
                 Console.WriteLine("Checking in directory...");
                 IPAddress sourceAddress = domain.NCC.DirectoryRequest(source);
                 IPAddress destAddress = domain.NCC.DirectoryRequest(destination);
@@ -105,34 +158,20 @@ namespace DomainApp
                 flag = domain.NCC.PolicyRequest(sourceAddress, destAddress);
 
                 if (sourceAddress != null && destAddress != null)
-                {                               
-                }
-                else
-                {
-                    domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
-                    List<byte> buffer = new List<byte>();
-                    buffer.AddRange(Encoding.ASCII.GetBytes("RC-giveDomainPoint " + sourceAddress.GetAddressBytes() + " "+ destAddress.GetAddressBytes()));
-                    domain.domainClient.Send(buffer.ToArray());
-                }
-                if (flag)
-                { 
-                    Console.WriteLine("You can set connection");
-                }
-                if (sourceAddress != null && destAddress != null)
                 { //RC w swoim pliku ma odległość przy danym source i destination więc to też do zrobienia
-                   RoutingResult routingResult=domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, domain.RC.cables, domain.RC.lrms, speed); // prototyp funkcji Dijkstry
+                    RoutingResult routingResult = domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, domain.RC.cables, domain.RC.lrms, speed); // prototyp funkcji Dijkstry
                     List<int> idxOfSlots = new List<int>();
-                    for(int i=0; i<10;i++)
+                    for (int i = 0; i < 10; i++)
                     {
-                        if(routingResult.slots[i])
+                        if (routingResult.slots[i])
                         {
                             idxOfSlots.Add(i);
                             Console.WriteLine("Index of slot: " + i);
                         }
                     }
-                    foreach(var node in routingResult.Path)
+                    foreach (var node in routingResult.Path)
                     {
-                        Console.WriteLine("Chosen node: "+node.ToString());
+                        Console.WriteLine("Chosen node: " + node.ToString());
                     }
                     List<byte> bufferToSend = new List<byte>();
                     int ct = 0;
@@ -158,13 +197,13 @@ namespace DomainApp
                                 break;
                             }
                         }
-                        if(!flaga)
+                        if (!flaga)
                         {
                             bufferToSend.AddRange(Encoding.ASCII.GetBytes("ACK"));
                             bufferToSend.AddRange(BitConverter.GetBytes(idxOfSlots[0]));
                             bufferToSend.AddRange(BitConverter.GetBytes(idxOfSlots[idxOfSlots.Count - 1]));
                             bufferToSend.AddRange(BitConverter.GetBytes(cab.Value));
-                           
+
                             socket.BeginSend(bufferToSend.ToArray(), 0, bufferToSend.ToArray().Length, 0,
                         new AsyncCallback(SendCallBack), socket);
                             Console.WriteLine("Send to host: " + cab.Key);
@@ -172,21 +211,86 @@ namespace DomainApp
                             flaga = false;
                         }
                     }
-                                                              
-                    }
-                    
 
                 }
+                else
+                {
+                    /*Thread thread = new Thread(connectWithSecondDomain);
+                    thread.Start();*/
 
-                //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
-                
-            
+                    List<byte> buffer = new List<byte>();
+                    buffer.AddRange(Encoding.ASCII.GetBytes("RC-giveDomainPoint " + sourceAddress.ToString() + " " + destination + " " + speed));
+                    // Socket socket = domain.CC.SocketfromIP[IPAddress.Parse("127.0.0.1")];
+                    //socket.BeginSend(buffer.ToArray(),0,buffer.ToArray().Length,0, new AsyncCallback(SendCallBack), socket);
+                    domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
+                    //Console.WriteLine("Connected");
+                    domain.domainClient.Send(buffer.ToArray());
+                    Console.WriteLine("Connected");
+                    domain.domainClient.Disconnect(true);
+                    //domain.domainClient.Send(buffer.ToArray());
+                }
+            }
+            if (message[0].Equals("RC-giveDomainPoint"))
+            {
+                Console.WriteLine("Rc-giveDomainPoint");
+                IPAddress source = IPAddress.Parse(message[1]);
+                String destination = message[2];
+                Console.WriteLine("Checking in other directory...");
+                IPAddress destAddress = domain.NCC.DirectoryRequest(destination);
+                int speed = int.Parse(message[3]);
+                StreamReader streamReader = new StreamReader("domainPoints.txt");
+                IPAddress borderAddress = null;
+                string line;
+                while ((line = streamReader.ReadLine()) != null)
+                {
+                    if ((line.Split(' ')[0].Equals(message[1]) && line.Split(' ')[1].Equals(message[2])) || (line.Split(' ')[0].Equals(message[2]) && line.Split(' ')[1].Equals(message[1])))
+                    {
+                        borderAddress = IPAddress.Parse(line.Split(' ')[2]);
+                        break;
+                    }
+
+                }
+                domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
+                domain.domainClient.Send(Encoding.ASCII.GetBytes("RC-SecondDomainTopology " + borderAddress.ToString() + " " + source.ToString() + " " + speed + " " + destination.ToString()));
+                domain.domainClient.Disconnect(true);
+            }
+            if (message[0].Equals("SET-REST-CONNECTION"))
+            {
+                IPAddress source = IPAddress.Parse(message[1]);
+                IPAddress destination = IPAddress.Parse(message[2]);
+                int speed = int.Parse(message[3]);
+
+                Console.WriteLine("Checking directory...");
+                Console.WriteLine("Checking policy...");
+                domain.RC.DijkstraAlgorithm(source, destination, domain.RC.cables, domain.RC.lrms, speed);
+            }
+
+            //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
+
+            if (message[0].Equals("Domain-callin")) 
+            {
+                domain.CC.IPfromSocket.Add(handler, IPAddress.Parse(message[1]));
+                domain.CC.SocketfromIP.Add(IPAddress.Parse(message[1]), handler);
+            }
             if(message[0].Equals("RC-SecondDomainTopology"))
             {
                 IPAddress borderAddress = IPAddress.Parse(message[1]);
-              //  Domain.RC.DijkstraAlgorithm(sourceAddress, borderAddress, Domain.RC.cables, Domain.RC.lrms, numberOfSlots);
+                IPAddress sourceAddress = IPAddress.Parse(message[2]);
+                int speed = int.Parse(message[3]);
+                IPAddress destinationAddress = IPAddress.Parse(message[4]);
+                domain.RC.DijkstraAlgorithm(sourceAddress, borderAddress, domain.RC.cables, domain.RC.lrms, speed);
+                Socket socket = domain.CC.SocketfromIP[IPAddress.Parse("127.0.0.1")];
+                List<byte> buffer = new List<byte>();
+                buffer.AddRange(Encoding.ASCII.GetBytes("SET-REST-CONNECTION " + borderAddress.ToString() + " "+ destinationAddress.ToString() + " " + speed));
+                domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
+                domain.domainClient.Send(buffer.ToArray());
+                domain.domainClient.Disconnect(true);
+                // socket.BeginSend(buffer.ToArray(), 0, buffer.ToArray().Length, 0, new AsyncCallback(SendCallBack), socket);
+
+
             }
-            if(message[0].Equals("CC-callin"))
+           
+            if (message[0].Equals("CC-callin"))
             {
                 domain.CC.IPfromSocket.Add(handler, IPAddress.Parse(message[1]));
                 domain.CC.SocketfromIP.Add(IPAddress.Parse(message[1]), handler); // router wysyła też swoje LRMy więc trzeba je dodać do RC
@@ -194,15 +298,15 @@ namespace DomainApp
                 domain.RC.nodesToAlgorithm.Add(IPAddress.Parse(message[1]));
                 List<byte> bufferLRM = new List<byte>();
                 bufferLRM.AddRange(Encoding.ASCII.GetBytes(message[2]));
-                for(int j=0; j<bufferLRM.Count;j++)
+               /* for(int j=0; j<bufferLRM.Count;j++)
                 {
                     Console.Write(bufferLRM[j] + " ");
                     
-                }
+                }*/
                 Console.WriteLine();
-                ushort port1 = (ushort)((bufferLRM[1] << 8) + bufferLRM[0]);
+              /*  ushort port1 = (ushort)((bufferLRM[1] << 8) + bufferLRM[0]);
                 Console.WriteLine(port1);
-                Console.WriteLine(bufferLRM.Count);
+                Console.WriteLine(bufferLRM.Count);*/
                 byte[] buffer = new byte[16];
                 int i = 0;
                 while(i<bufferLRM.Count)
@@ -217,23 +321,29 @@ namespace DomainApp
                 }
                // Array.Clear(state.buffer, 0, state.buffer.Length);
 
-            }
-            if(message[0].Equals("RC-giveDomainPoint"))
-            {
-                //zwróci punkt bazując na tym kto jst sourcem a kto destination
-                IPAddress ipBorderNode = null;
-                ushort portBorderNode=0;
-                domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
-                List<byte> buffer = new List<byte>();
-                buffer.AddRange(Encoding.ASCII.GetBytes("RC-SecondDomainTopology " + ipBorderNode.GetAddressBytes() + " " +BitConverter.GetBytes(portBorderNode)));
-                domain.domainClient.Send(buffer.ToArray());
-            }
+            }        
             if(message[0].Equals("SUBNETWORK-callin"))
             {
                 domain.CC.IPfromSocket.Add(handler, IPAddress.Parse(message[1]));
                 domain.CC.SocketfromIP.Add(IPAddress.Parse(message[1]), handler);
                 domain.RC.nodesToAlgorithm.Add(IPAddress.Parse(message[1]));
+                domain.RC.ipOfSubnet = IPAddress.Parse(message[1]);
                 Console.WriteLine("Subnetwork called in: " + IPAddress.Parse(message[1]));
+                List<byte> bufferLRM = new List<byte>();
+                bufferLRM.AddRange(Encoding.ASCII.GetBytes(message[2]));
+                byte[] buffer = new byte[16];
+                int i = 0;
+                while (i < bufferLRM.Count)
+                {
+                    buffer = bufferLRM.GetRange(i, 16).ToArray();
+                    ushort port = (ushort)((buffer[1] << 8) + buffer[0]);
+                    Console.WriteLine(port);
+                    LinkResourceManager LRM = LinkResourceManager.returnLRM(buffer);
+                    i += 16;
+                    Console.WriteLine("Port: " + LRM.port);
+                    domain.RC.lrms.Add(LRM);
+                }
+
 
             }
             state.sb.Clear();

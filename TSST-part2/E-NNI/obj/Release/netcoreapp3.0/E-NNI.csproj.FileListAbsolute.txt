@@ -1,0 +1,14 @@
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\E-NNI.exe
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\E-NNI.deps.json
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\E-NNI.runtimeconfig.json
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\E-NNI.runtimeconfig.dev.json
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\E-NNI.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\E-NNI.pdb
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\Tools.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\bin\Release\netcoreapp3.0\Tools.pdb
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\obj\Release\netcoreapp3.0\E-NNI.csprojAssemblyReference.cache
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\obj\Release\netcoreapp3.0\E-NNI.AssemblyInfoInputs.cache
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\obj\Release\netcoreapp3.0\E-NNI.AssemblyInfo.cs
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\obj\Release\netcoreapp3.0\E-NNI.csproj.CopyComplete
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\obj\Release\netcoreapp3.0\E-NNI.dll
+C:\Users\pawer\Desktop\TSST-part2\TSST-part2\TSST-part2\E-NNI\obj\Release\netcoreapp3.0\E-NNI.pdb
