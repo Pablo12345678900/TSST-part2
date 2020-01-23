@@ -29,18 +29,18 @@ namespace E_NNI
             enni.lrms.Add(lrm1);
             List<byte> buffer1 = new List<byte>();
             buffer1.AddRange(Encoding.ASCII.GetBytes("CC-callin " + enni.ip.ToString() + " "));
-            foreach(var lr in enni.lrms)
-            {
-                buffer1.AddRange(lr.convertToBytes());
-            }
+            
+              buffer1.AddRange(lrm.convertToBytes());
+            
             enni.socketToDomain1.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), enni.portDomain1));
             enni.socketToDomain1.Send(buffer1.ToArray());
             buffer1.Clear();
             buffer1.AddRange(Encoding.ASCII.GetBytes("CC-callin " + enni.ip.ToString() + " "));
-            foreach (var lr in enni.lrms)
-            {
-                buffer1.AddRange(lr.convertToBytes());
-            }
+            buffer1.AddRange(lrm1.convertToBytes());
+            /* foreach (var lr in enni.lrms)
+             {
+                 buffer1.AddRange(lr.convertToBytes());
+             }*/
             enni.socketToDomain2.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), enni.portDomain2));
             enni.socketToDomain2.Send(buffer1.ToArray());
             Thread thread = new Thread(WaitForData);
