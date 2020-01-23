@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 namespace Tools
 {
-    class Interface
+    public class Interface
     {
         public ushort port1 { get; set; }
         public ushort port2 { get; set; }

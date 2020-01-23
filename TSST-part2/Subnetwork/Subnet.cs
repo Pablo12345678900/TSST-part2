@@ -22,6 +22,8 @@ namespace Subnetwork
         public Socket subClient { get; set; }
         public Socket subClientToCloud { get; set; }
         public List<LinkResourceManager> lrms = new List<LinkResourceManager>();
+        public List<Interface> interfaces = new List<Interface>();
+        public List<LinkResourceManager> lrmForDomain = new List<LinkResourceManager>();
 
         public ManualResetEvent subDone = new ManualResetEvent(false);
 

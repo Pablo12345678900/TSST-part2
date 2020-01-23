@@ -23,7 +23,7 @@ namespace DomainApp
         public Socket domainServer { get; set; }
         public Socket domainClient { get; set; }
         public ushort port { get; set; }
-        public Socket secondDomainSocket { get; set; }
+        public Socket socketToSub { get; set; }
 
         public ushort secondDomainPort { get; set; }
         
@@ -42,7 +42,7 @@ namespace DomainApp
             domainServer = new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
            
             domainClient= new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            secondDomainSocket= new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socketToSub= new Socket(myhost.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         }
         public void readinfo(String conFile)
         {

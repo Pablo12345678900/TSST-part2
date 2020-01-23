@@ -44,7 +44,7 @@ namespace Tools
             RC.cables = readCables;
             return RC;
         }
-        private class NetworkNode
+        public class NetworkNode
         {
             public IPAddress ipadd;
             public int distance;
@@ -67,7 +67,7 @@ namespace Tools
             }
         }
 
-        private class Edge
+        public class Edge
         {
             public NetworkNode NodeA;
             public NetworkNode NobeB;
@@ -87,6 +87,7 @@ namespace Tools
             public List<IPAddress> Path;
             public Dictionary<IPAddress, ushort> nodeAndPortsOut;
             public Dictionary<IPAddress, ushort> nodeAndPortsIn;
+            public List<NetworkNode> networkNodes;
             public bool[] slots;
             public int speed;
             public int length;
@@ -98,6 +99,7 @@ namespace Tools
             {
                 slots = new bool[10];
                 Path = new List<IPAddress>();
+                networkNodes = new List<NetworkNode>();
                 nodeAndPortsOut = new Dictionary<IPAddress, ushort>();
                 nodeAndPortsIn = new Dictionary<IPAddress, ushort>();
                 speed = new int();
@@ -254,8 +256,8 @@ namespace Tools
                         }
                         else { n = e.NodeA; }
                        // Console.WriteLine(n.ipadd.ToString() + " slotsreuqired: " + slots_required);
-                        if (!n.visited)
-                        {
+                        /*if (!n.visited)
+                        {*/
                             //inspecting available slots
                           //  Console.WriteLine("in slots");
                             int[] slots_available = new int[10];
@@ -295,13 +297,15 @@ namespace Tools
                                 }
                             }
 
-                        }
-                        current_node.visited = true;
+                        
+                        
                     }
+                    //current_node.visited = true;
 
                 }
                 //finding the target/destination and slots to use to provide the result
                 List<IPAddress> ReversedPath = new List<IPAddress>();
+                List<NetworkNode> networkNodes = new List<NetworkNode>();
                 for (int i = 0; i < Nodes.Count; i++)
                 {
                     if (Nodes[i].ipadd.Equals(destination))
@@ -343,6 +347,7 @@ namespace Tools
                 slot_table = temp_node.slottable;
 
                 ReversedPath.Add(temp_node.ipadd);
+                networkNodes.Add(temp_node);
                 Cable cable = findCableBetweenNodes(temp_node.ipadd, temp_node.predecessor.ipadd, cables);
                 List<ushort> ports = new List<ushort>();
                 ushort port = 0;
@@ -389,9 +394,11 @@ namespace Tools
                     //result.nodeAndPorts.Add(temp_node.predecessor.ipadd, port1);
 
                     ReversedPath.Add(temp_node.ipadd);
+                    networkNodes.Add(temp_node);
                     if (temp_node.predecessor.ipadd.Equals(source))
                     {
                         ReversedPath.Add(temp_node.predecessor.ipadd);
+                        networkNodes.Add(temp_node.predecessor);
                         // result.nodeAndPortsOut.Add(temp_node.predecessor.ipadd, port1);
                         break;
                     }
@@ -400,9 +407,12 @@ namespace Tools
                 }
 
                 //compiling the result
+                Console.WriteLine("Nodes in result: ");
                 for (int i = 0; i < ReversedPath.Count; i++)
                 {
                     result.Path.Add(ReversedPath[ReversedPath.Count - 1 - i]);
+                    Console.WriteLine(result.Path[i]);
+                    result.networkNodes.Add(networkNodes[networkNodes.Count - 1 - i]);
                 }
                 //choosing the slots to use
                 int[] result_slots = new int[10];
@@ -485,7 +495,7 @@ namespace Tools
                     }
                 }
             }
-            Console.WriteLine("Start slot: " + result.startSlot + " and last " + result.lastSlot);
+            Console.WriteLine("Start slot: " + result.startSlot + " and last " + result.lastSlot + " " + result.networkNodes.Count);
 
 
 
@@ -634,9 +644,8 @@ namespace Tools
                             n = e.NobeB;
                         }
                         else { n = e.NodeA; }
-                        Console.WriteLine("Edge: " + e.NodeA + " " + e.NobeB + " " + e.length);
-                        if (!n.visited)
-                        {
+                      //  Console.WriteLine("Edge: " + e.NodeA + " " + e.NobeB + " " + e.length);
+                       
                             //inspecting available slots
 
                             bool can_support = true;
@@ -660,13 +669,14 @@ namespace Tools
                                 }
                             }
 
-                        }
-                        current_node.visited = true;
+                        
+                       
                     }
 
                 }
                 //finding the target/destination and slots to use to provide the result
                 List<IPAddress> ReversedPath = new List<IPAddress>();
+                List<NetworkNode> networkNodes = new List<NetworkNode>();
                 for (int i = 0; i < Nodes.Count; i++)
                 {
                     if (Nodes[i].ipadd.Equals(destination))
@@ -676,7 +686,7 @@ namespace Tools
                     }
                 }
                 NetworkNode temp_node = Nodes[index];
-                Console.WriteLine(" address: " + temp_node.ipadd);
+                Console.WriteLine(" address: " + temp_node.ipadd + " prev: " +  temp_node.predecessor.ipadd);
                 if (temp_node.predecessor.Equals(null))
                 {
                     //zwraca pusty wynik kiedy nie doszedł algorytm do konca - nie mozna wyznaczyc sciezki
@@ -713,6 +723,7 @@ namespace Tools
                 slot_table = temp_node.slottable;
 
                 ReversedPath.Add(temp_node.ipadd);
+                networkNodes.Add(temp_node);
                 Cable cable = findCableBetweenNodes(temp_node.ipadd, temp_node.predecessor.ipadd, cables);
                 List<ushort> ports = new List<ushort>();
                 ushort port = 0;
@@ -734,6 +745,13 @@ namespace Tools
               //  Console.WriteLine("Node ip: " + temp_node.ipadd.ToString());
                 while (true)
                 {
+                    if (temp_node.predecessor.ipadd.Equals(source))
+                    {
+                        ReversedPath.Add(temp_node.predecessor.ipadd);
+                        networkNodes.Add(temp_node.predecessor);
+                        // result.nodeAndPortsOut.Add(temp_node.predecessor.ipadd, port1);
+                        break;
+                    }
 
                     // !temp_node.predecessor.Equals(null)
                     temp_node = temp_node.predecessor;
@@ -759,12 +777,8 @@ namespace Tools
                     //result.nodeAndPorts.Add(temp_node.predecessor.ipadd, port1);
 
                     ReversedPath.Add(temp_node.ipadd);
-                    if (temp_node.predecessor.ipadd.Equals(source))
-                    {
-                        ReversedPath.Add(temp_node.predecessor.ipadd);
-                        // result.nodeAndPortsOut.Add(temp_node.predecessor.ipadd, port1);
-                        break;
-                    }
+                    networkNodes.Add(temp_node);
+                    
                    // Console.WriteLine("Node ip: " + temp_node.ipadd.ToString());
 
                 }
@@ -774,6 +788,7 @@ namespace Tools
                 for (int i = 0; i < ReversedPath.Count; i++)
                 {
                     result.Path.Add(ReversedPath[ReversedPath.Count - 1 - i]);
+                    result.networkNodes.Add(networkNodes[networkNodes.Count - 1 - i]);
                 }
 
                 //choosing the slots to use
@@ -811,7 +826,7 @@ namespace Tools
                     }
                 }
             }
-            Console.WriteLine("Start slot: " + result.startSlot + " and last " + result.lastSlot);
+            Console.WriteLine("Start slot: " + result.startSlot + " and last " + result.lastSlot + " " +result.networkNodes.Count);
 
             return result;
         }

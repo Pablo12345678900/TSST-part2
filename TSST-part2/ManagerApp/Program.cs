@@ -166,10 +166,67 @@ namespace DomainApp
                 bool flag = false;
                 Console.WriteLine("Checking policy...");
                 flag = domain.NCC.PolicyRequest(sourceAddress, destAddress);
-
+                ushort portOfSubSource = 0;
+                ushort portOfSubDest = 0;
+                bool ifSubnet = false;
                 if (sourceAddress != null && destAddress != null)
                 { //RC w swoim pliku ma odległość przy danym source i destination więc to też do zrobienia
                     RoutingResult routingResult = domain.RC.DijkstraAlgorithm(sourceAddress, destAddress, domain.RC.cables, domain.RC.lrms, speed); // prototyp funkcji Dijkstry
+                    foreach (var node in routingResult.Path)
+                    {
+                        if (node.Equals(domain.RC.ipOfSubnet) && domain.RC.ipOfSubnet!=null)
+                        {
+                            ifSubnet = true;
+                            break;
+                        }
+
+                    }
+                    if (ifSubnet)
+                    {
+                        Cable cable1 = null;
+                        foreach (var node in routingResult.networkNodes)
+                        {
+                            if (node.ipadd.Equals(sourceAddress))
+                                continue;
+                            Console.WriteLine("Node: " + node.ipadd + " Predecessory: " + node.predecessor.ipadd);
+                            if (node.ipadd.Equals(domain.RC.ipOfSubnet))
+                            {
+                                cable1 = findCableBetweenNodes(node.ipadd, node.predecessor.ipadd, domain.RC.cables);
+                                // cable1 = findCableBetweenNodes(node.ipadd, node.predecessor.ipadd, domain.RC.cables);
+                                if (cable1.Node1.Equals(node.ipadd))
+                                {
+                                    portOfSubSource = cable1.port1;
+                                }
+                                else if (cable1.Node2.Equals(node.ipadd))
+                                {
+                                    portOfSubSource = cable1.port2;
+                                }
+                            }
+                            if (node.predecessor.ipadd.Equals(domain.RC.ipOfSubnet))
+                            {
+                                cable1 = findCableBetweenNodes(node.ipadd, node.predecessor.ipadd, domain.RC.cables);
+                                if (cable1.Node1.Equals(node.predecessor.ipadd))
+                                {
+                                    portOfSubDest = cable1.port1;
+                                }
+                                else if (cable1.Node2.Equals(node.predecessor.ipadd))
+                                {
+                                    portOfSubDest = cable1.port2;
+                                }
+                            }
+                        }
+
+
+
+                        Socket socket1 = domain.CC.SocketfromIP[domain.RC.ipOfSubnet];
+                        List<byte> bufferForSubnetwork = new List<byte>();
+                        // Cable cable=findCableBetweenNodes(domain.RC.ipOfSubnet, )
+                        bufferForSubnetwork.AddRange(Encoding.ASCII.GetBytes("SET-CONNECTION " + portOfSubSource + " " + portOfSubDest + " " + routingResult.startSlot + " " + routingResult.lastSlot + " " + routingResult.speed + " " + routingResult.lengthOfGivenDomain));
+                        domain.socketToSub.Send(bufferForSubnetwork.ToArray());
+                    }
+
+                    //  Console.WriteLine("RoutingResult Count: " + routingResult.networkNodes.Count);
+
                     List<int> idxOfSlots = new List<int>();
                     for (int i = 0; i < 10; i++)
                     {
@@ -232,14 +289,18 @@ namespace DomainApp
                     buffer.AddRange(Encoding.ASCII.GetBytes("RC-giveDomainPoint " + sourceAddress.ToString() + " " + destination + " " + speed));
                     // Socket socket = domain.CC.SocketfromIP[IPAddress.Parse("127.0.0.1")];
                     //socket.BeginSend(buffer.ToArray(),0,buffer.ToArray().Length,0, new AsyncCallback(SendCallBack), socket);
-                    
+
                     //Console.WriteLine("Connected");
                     domain.domainClient.Send(buffer.ToArray());
                     Console.WriteLine("Connected");
-                   // domain.domainClient.Disconnect(true);
+                    // domain.domainClient.Disconnect(true);
                     //domain.domainClient.Send(buffer.ToArray());
                 }
             }
+              //  bool ifSubnet = false;
+                
+                //  Console.WriteLine("RoutingResult Count: " + routingResult.networkNodes.Count);
+               
             if (message[0].Equals("RC-giveDomainPoint"))
             {
                 Console.WriteLine("Rc-giveDomainPoint");
@@ -389,7 +450,7 @@ namespace DomainApp
 
             //Domain.NCC.ConnectionRequest(sourceAddress, destAddress, speed);
 
-            if(message[0].Equals("RC-SecondDomainTopology"))
+            if (message[0].Equals("RC-SecondDomainTopology"))
             {
                 Console.WriteLine("RC second domain topology");
                 IPAddress borderAddress = IPAddress.Parse(message[1]);
@@ -397,26 +458,79 @@ namespace DomainApp
                 int speed = int.Parse(message[3]);
                 IPAddress destinationAddress = IPAddress.Parse(message[4]);
                 Console.WriteLine("Saved data");
-                RoutingResult routing=domain.RC.DijkstraAlgorithm(sourceAddress, borderAddress, domain.RC.cables, domain.RC.lrms, speed);
+                RoutingResult routing = domain.RC.DijkstraAlgorithm(sourceAddress, borderAddress, domain.RC.cables, domain.RC.lrms, speed);
                 r = routing;
-                /*List<int> idxOfSlots = new List<int>();
-                for (int i = 0; i < 10; i++)
+                bool ifSubnet = false;
+                foreach (var node in routing.Path)
                 {
-                    if (routing.slots[i])
+                    if (node.Equals(domain.RC.ipOfSubnet) && domain.RC.ipOfSubnet != null)
                     {
-                        idxOfSlots.Add(i);
-                        Console.WriteLine("Index of slot: " + i);
+                        ifSubnet = true;
+                        break;
                     }
-                }*/
-                // Socket socket = domain.CC.SocketfromIP[IPAddress.Parse("127.0.0.1")];
-                List<byte> buffer = new List<byte>();
-                buffer.AddRange(Encoding.ASCII.GetBytes("SET-REST-CONNECTION " + borderAddress.ToString() + " "+ destinationAddress.ToString() + " " + speed + " " + routing.startSlot + " " +routing.lastSlot + " " + routing.lengthOfGivenDomain + " " + sourceAddress.ToString()));
-                //domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
-                domain.domainClient.Send(buffer.ToArray());
-                //domain.domainClient.Disconnect(true);
-                // socket.BeginSend(buffer.ToArray(), 0, buffer.ToArray().Length, 0, new AsyncCallback(SendCallBack), socket);
+
+                }
+                ushort portOfSubSource = 0;
+                ushort portOfSubDest = 0;
+                if (ifSubnet)
+                {
+                    Cable cable1 = null;
+                    foreach (var node in routing.networkNodes)
+                    {
+                        if (node.ipadd.Equals(sourceAddress))
+                            continue;
+                        Console.WriteLine("Node: " + node.ipadd + " Predecessory: " + node.predecessor.ipadd);
+                        if (node.ipadd.Equals(domain.RC.ipOfSubnet))
+                        {
+                            cable1 = findCableBetweenNodes(node.ipadd, node.predecessor.ipadd, domain.RC.cables);
+                            // cable1 = findCableBetweenNodes(node.ipadd, node.predecessor.ipadd, domain.RC.cables);
+                            if (cable1.Node1.Equals(node.ipadd))
+                            {
+                                portOfSubSource = cable1.port1;
+                            }
+                            else if (cable1.Node2.Equals(node.ipadd))
+                            {
+                                portOfSubSource = cable1.port2;
+                            }
+                        }
+                        if (node.predecessor.ipadd.Equals(domain.RC.ipOfSubnet))
+                        {
+                            cable1 = findCableBetweenNodes(node.ipadd, node.predecessor.ipadd, domain.RC.cables);
+                            if (cable1.Node1.Equals(node.predecessor.ipadd))
+                            {
+                                portOfSubDest = cable1.port1;
+                            }
+                            else if (cable1.Node2.Equals(node.predecessor.ipadd))
+                            {
+                                portOfSubDest = cable1.port2;
+                            }
+                        }
+                    }
+                    Socket socket1 = domain.CC.SocketfromIP[domain.RC.ipOfSubnet];
+                    List<byte> bufferForSubnetwork = new List<byte>();
+                    // Cable cable=findCableBetweenNodes(domain.RC.ipOfSubnet, )
+                    bufferForSubnetwork.AddRange(Encoding.ASCII.GetBytes("SET-CONNECTION " + portOfSubSource + " " + portOfSubDest + " " + routing.startSlot + " " + routing.lastSlot + " " + routing.speed + " " + routing.lengthOfGivenDomain));
+                    domain.socketToSub.Send(bufferForSubnetwork.ToArray());
+                }
+                    /*List<int> idxOfSlots = new List<int>();
+                    for (int i = 0; i < 10; i++)
+                    {
+                        if (routing.slots[i])
+                        {
+                            idxOfSlots.Add(i);
+                            Console.WriteLine("Index of slot: " + i);
+                        }
+                    }*/
+                    // Socket socket = domain.CC.SocketfromIP[IPAddress.Parse("127.0.0.1")];
+                    List<byte> buffer = new List<byte>();
+                    buffer.AddRange(Encoding.ASCII.GetBytes("SET-REST-CONNECTION " + borderAddress.ToString() + " " + destinationAddress.ToString() + " " + speed + " " + routing.startSlot + " " + routing.lastSlot + " " + routing.lengthOfGivenDomain + " " + sourceAddress.ToString()));
+                    //domain.domainClient.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), domain.secondDomainPort));
+                    domain.domainClient.Send(buffer.ToArray());
+                    //domain.domainClient.Disconnect(true);
+                    // socket.BeginSend(buffer.ToArray(), 0, buffer.ToArray().Length, 0, new AsyncCallback(SendCallBack), socket);
 
 
+                
             }
            
             if (message[0].Equals("CC-callin"))
@@ -457,19 +571,21 @@ namespace DomainApp
                 domain.CC.SocketfromIP.Add(IPAddress.Parse(message[1]), handler);
                 domain.RC.nodesToAlgorithm.Add(IPAddress.Parse(message[1]));
                 domain.RC.ipOfSubnet = IPAddress.Parse(message[1]);
+                ushort portOfSub = ushort.Parse(message[2]);
                 Console.WriteLine("Subnetwork called in: " + IPAddress.Parse(message[1]));
                 List<byte> bufferLRM = new List<byte>();
-                bufferLRM.AddRange(Encoding.ASCII.GetBytes(message[2]));
+                domain.socketToSub.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), portOfSub));
+                bufferLRM.AddRange(Encoding.ASCII.GetBytes(message[3]));
                 byte[] buffer = new byte[16];
                 int i = 0;
                 while (i < bufferLRM.Count)
                 {
                     buffer = bufferLRM.GetRange(i, 16).ToArray();
                     ushort port = (ushort)((buffer[1] << 8) + buffer[0]);
-                    Console.WriteLine(port);
+                    Console.WriteLine("Ports of subnetwork: " + port) ;
                     LinkResourceManager LRM = LinkResourceManager.returnLRM(buffer);
                     i += 16;
-                    Console.WriteLine("Port: " + LRM.port);
+                   // Console.WriteLine("Port: " + LRM.port);
                     domain.RC.lrms.Add(LRM);
                 }
 
@@ -493,7 +609,7 @@ namespace DomainApp
                 Cable cable = null;
                 for(int i=0; i<cables.Count;i++)
                 {
-                    if((cables[i].Node1==ip1 && cables[i].Node2==ip2) || (cables[i].Node2 == ip1 && cables[i].Node1 == ip2))
+                    if((cables[i].Node1.Equals(ip1) && cables[i].Node2.Equals(ip2)) || (cables[i].Node2.Equals(ip1) && cables[i].Node1.Equals(ip2)))
                     {
                         cable = cables[i];
                         break;
