@@ -1,1 +1,2 @@
 # TSST-part2
+Projekt implementujący emulator sieci w technologii Elastic Optical Network w ramach przedmiotu Transport i Sterowanie w Sieciach Telekomunikacyjnych na Politechnice Warszawskiej na wydziale Elektroniki i Technik Informacyjnych.
